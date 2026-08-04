@@ -1,0 +1,153 @@
+<svg viewBox="0 0 600 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Photograph of a leaf with disease spots, feeding holes and insects">
+  <defs>
+    <linearGradient id="leafFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8FC79E"/>
+      <stop offset=".45" stop-color="#4F9F6E"/>
+      <stop offset="1" stop-color="#256B47"/>
+    </linearGradient>
+    <radialGradient id="leafShade" cx="30%" cy="20%" r="80%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="spotCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#7A3A22"/>
+      <stop offset=".55" stop-color="#8C4726"/>
+      <stop offset="1" stop-color="#B8722F" stop-opacity=".2"/>
+    </radialGradient>
+    <radialGradient id="spotHalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#D9B24B" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#D9B24B" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blobEdge" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9"/>
+    </filter>
+    <filter id="softBlur"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+
+  <!-- ===== leaf blade ===== -->
+  <g id="blade">
+    <path d="M300 28
+             C 428 56 528 156 548 296
+             C 568 438 476 566 342 596
+             C 258 616 176 584 126 500
+             C 78 418 66 296 108 196
+             C 150 96 222 40 300 28 Z"
+          fill="url(#leafFill)"/>
+    <path d="M300 28
+             C 428 56 528 156 548 296
+             C 568 438 476 566 342 596
+             C 258 616 176 584 126 500
+             C 78 418 66 296 108 196
+             C 150 96 222 40 300 28 Z"
+          fill="url(#leafShade)"/>
+    <!-- stem -->
+    <path d="M336 592 C 344 610 356 622 368 634" stroke="#3E7A50" stroke-width="10" fill="none" stroke-linecap="round"/>
+
+    <!-- veins -->
+    <path d="M300 40 C 292 180 300 420 340 592" stroke="#1F5636" stroke-width="4" fill="none" stroke-linecap="round" opacity=".55"/>
+    <g stroke="#1F5636" stroke-width="2.4" fill="none" opacity=".42" stroke-linecap="round">
+      <path d="M300 110 C 360 130 410 150 452 190"/>
+      <path d="M300 180 C 368 196 424 224 466 268"/>
+      <path d="M304 260 C 372 276 430 308 476 356"/>
+      <path d="M312 340 C 372 358 420 392 452 434"/>
+      <path d="M320 420 C 366 436 400 464 424 498"/>
+      <path d="M296 110 C 236 132 188 156 150 198"/>
+      <path d="M296 180 C 230 200 178 232 140 276"/>
+      <path d="M300 260 C 232 282 178 316 138 360"/>
+      <path d="M308 340 C 246 362 200 396 168 436"/>
+      <path d="M316 420 C 266 440 228 468 202 500"/>
+    </g>
+
+    <!-- irregular edge notches (feeding damage on margin) -->
+    <path d="M118 220 C 108 232 108 248 122 254 C 134 258 144 246 140 232 C 138 224 128 216 118 220 Z" fill="#0B3D2E"/>
+    <path d="M96 340 C 84 348 82 366 96 374 C 110 380 122 366 118 350 C 116 340 106 334 96 340 Z" fill="#0B3D2E"/>
+    <path d="M498 380 C 512 386 516 402 504 412 C 492 420 478 408 480 392 C 482 382 490 376 498 380 Z" fill="#0B3D2E"/>
+  </g>
+
+  <!-- ===== interior feeding holes ===== -->
+  <g id="holes" fill="#0B3D2E">
+    <path d="M240 180 C 254 174 268 182 268 198 C 268 214 252 222 238 214 C 226 208 226 186 240 180 Z"/>
+    <path d="M356 470 C 372 462 388 472 386 490 C 384 506 364 512 352 500 C 342 490 344 476 356 470 Z"/>
+    <ellipse cx="252" cy="184" rx="9" ry="6" fill="#093021" opacity=".6"/>
+    <ellipse cx="368" cy="474" rx="10" ry="6" fill="#093021" opacity=".6"/>
+  </g>
+
+  <!-- ===== disease blotches ===== -->
+  <g id="spots">
+    <g transform="translate(212,238)" filter="url(#blobEdge)">
+      <circle r="34" fill="url(#spotHalo)"/>
+      <circle r="21" fill="url(#spotCore)"/>
+      <circle r="9" fill="#5C2C18" opacity=".85"/>
+    </g>
+    <g transform="translate(410,300)" filter="url(#blobEdge)">
+      <circle r="40" fill="url(#spotHalo)"/>
+      <circle r="25" fill="url(#spotCore)"/>
+      <circle r="10" fill="#5C2C18" opacity=".85"/>
+    </g>
+    <g transform="translate(268,420)" filter="url(#blobEdge)">
+      <circle r="26" fill="url(#spotHalo)"/>
+      <circle r="16" fill="url(#spotCore)"/>
+      <circle r="6" fill="#5C2C18" opacity=".85"/>
+    </g>
+    <g transform="translate(182,368)" filter="url(#blobEdge)">
+      <circle r="18" fill="url(#spotHalo)"/>
+      <circle r="10" fill="url(#spotCore)"/>
+    </g>
+    <g transform="translate(392,430)" filter="url(#blobEdge)">
+      <circle r="20" fill="url(#spotHalo)"/>
+      <circle r="12" fill="url(#spotCore)"/>
+    </g>
+    <!-- powdery mildew patch -->
+    <g transform="translate(330,180)" opacity=".8">
+      <ellipse rx="30" ry="18" fill="#EDEADB" opacity=".55" filter="url(#softBlur)"/>
+      <ellipse rx="18" ry="10" fill="#F5F2E4" opacity=".7" filter="url(#softBlur)"/>
+    </g>
+  </g>
+
+  <!-- ===== caterpillar along lower-left vein ===== -->
+  <g id="caterpillar" transform="translate(178,470) rotate(18)">
+    <g fill="#A9C94A" stroke="#6F8C2C" stroke-width="1">
+      <ellipse cx="0" cy="0" rx="10" ry="8"/>
+      <ellipse cx="16" cy="-1" rx="10" ry="7.5"/>
+      <ellipse cx="32" cy="0" rx="10" ry="7.5"/>
+      <ellipse cx="48" cy="-1" rx="10" ry="7"/>
+      <ellipse cx="63" cy="0" rx="9" ry="6.5"/>
+      <ellipse cx="77" cy="-1" rx="8" ry="6"/>
+    </g>
+    <circle cx="88" cy="-1" r="6" fill="#3E4A1E"/>
+    <line x1="93" y1="-6" x2="99" y2="-12" stroke="#3E4A1E" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="93" y1="3" x2="99" y2="8" stroke="#3E4A1E" stroke-width="1.4" stroke-linecap="round"/>
+    <g stroke="#6F8C2C" stroke-width="1.4" stroke-linecap="round">
+      <line x1="10" y1="7" x2="8" y2="15"/>
+      <line x1="32" y1="7" x2="30" y2="15"/>
+      <line x1="55" y1="6" x2="53" y2="14"/>
+    </g>
+  </g>
+
+  <!-- ===== leaf beetle near top-right blotch ===== -->
+  <g id="beetle" transform="translate(438,258) rotate(-20)">
+    <ellipse rx="16" ry="10" fill="#8C3F27"/>
+    <line x1="0" y1="-10" x2="0" y2="10" stroke="#5C2510" stroke-width="1.4"/>
+    <ellipse cx="0" cy="-11" rx="5" ry="4" fill="#3B2013"/>
+    <g stroke="#5C2510" stroke-width="1.3" stroke-linecap="round">
+      <line x1="-9" y1="-4" x2="-17" y2="-9"/>
+      <line x1="-11" y1="2" x2="-19" y2="2"/>
+      <line x1="-9" y1="7" x2="-16" y2="12"/>
+      <line x1="9" y1="-4" x2="17" y2="-9"/>
+      <line x1="11" y1="2" x2="19" y2="2"/>
+      <line x1="9" y1="7" x2="16" y2="12"/>
+    </g>
+  </g>
+
+  <!-- ===== aphid cluster ===== -->
+  <g id="aphids" transform="translate(300,352)">
+    <g fill="#9BBE6A" opacity=".92">
+      <ellipse cx="0" cy="0" rx="4.2" ry="3.2"/>
+      <ellipse cx="7" cy="3" rx="3.6" ry="2.8"/>
+      <ellipse cx="-6" cy="4" rx="3.6" ry="2.8"/>
+      <ellipse cx="2" cy="8" rx="3.2" ry="2.4"/>
+      <ellipse cx="-4" cy="-4" rx="3" ry="2.3"/>
+    </g>
+  </g>
+</svg>

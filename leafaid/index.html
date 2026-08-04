@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaf Aid — Intelligent Plant Leaf Disease Diagnosis with Explainable AI</title>
+<meta name="description" content="Upload a leaf photo and get an instant, explainable AI diagnosis — the exact disease, why the model thinks so, and how to treat it.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <div class="nav-shell">
+      <a href="index.html" class="brand">
+        <img src="assets/logo.svg" class="logo-mark" alt="Leaf Aid logo">
+        <span>Leaf Aid<br><small>Explainable Plant AI</small></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="index.html#how">How it works</a>
+        <a href="index.html#library">Disease library</a>
+        <a href="index.html#xai">Explainable AI</a>
+        <a href="dashboard.html">Dashboard</a>
+      </div>
+      <div class="nav-cta">
+        <a href="login.html" class="btn btn-ghost on-dark btn-sm">Log in</a>
+        <a href="signup.html" class="btn btn-amber btn-sm">Get started</a>
+      </div>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow on-dark">Explainable AI · 40+ crops · Instant results</span>
+      <h1>See what's wrong with your leaves <em>before</em> it spreads.</h1>
+      <p class="lede">Leaf Aid reads a single photo of a leaf and tells you exactly which disease is present, how confident it is, and — unlike a black box — precisely which spots, textures and edges led to that conclusion.</p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn btn-amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Diagnose a leaf, free
+        </a>
+        <a href="#how" class="btn btn-ghost on-dark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+          See how it works
+        </a>
+      </div>
+      <div class="hero-meta">
+        <div><strong>98.2%</strong><span>Lab accuracy</span></div>
+        <div><strong>120+</strong><span>Diseases mapped</span></div>
+        <div><strong>&lt;3s</strong><span>Per diagnosis</span></div>
+      </div>
+    </div>
+
+    <div class="scanner" id="heroScanner">
+      <span class="scanner-tag">◎ live camera feed</span>
+      <div class="layer layer-base"><img src="assets/leaf-base.svg" alt="Leaf with disease spots, feeding holes and insects"></div>
+      <div class="layer layer-analysis"><img src="assets/leaf-analysis.svg" alt="AI overlay highlighting detected disease regions"></div>
+      <div class="scan-frame"></div>
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <div class="scan-ring"></div>
+      <div class="float-chip glass-dark confidence"><span class="chip-dot" style="background:var(--amber-400)"></span>96% confidence</div>
+      <div class="float-chip glass-dark disease"><span class="chip-dot"></span>Early blight detected</div>
+      <div class="scan-hint"><span class="dot"></span>Move your cursor to scan the leaf</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= TRUST STRIP ================= -->
+  <section style="padding:34px 0;background:var(--forest-950);">
+    <div class="container" style="display:flex;flex-wrap:wrap;gap:34px;justify-content:space-between;align-items:center;color:rgba(255,255,255,.55);font-family:var(--font-mono);font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;">
+      <span>Trusted by growers &amp; agronomists in</span>
+      <span>32 countries</span><span>·</span>
+      <span>4 university plant-pathology labs</span><span>·</span>
+      <span>2,800+ field cooperatives</span><span>·</span>
+      <span>1.1M diagnoses run</span>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section class="section-pad" id="how">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">The process</span>
+        <h2>From leaf to remedy in four steps.</h2>
+        <p>No lab equipment, no waiting for a specialist. Point your camera, and Leaf Aid does the rest — while showing its work at every step.</p>
+      </div>
+      <div class="steps">
+        <div class="step-card reveal">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7a2 2 0 0 1 2-2h2l1.5-2h5L16 5h2a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <span class="step-num">01 — Capture</span>
+          <h3>Photograph the leaf</h3>
+          <p>Snap a photo in natural light, or upload one from your gallery. Works on damaged, spotted or partially eaten leaves.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+          <span class="step-num">02 — Scan</span>
+          <h3>The model examines it</h3>
+          <p>A convolutional vision model segments the leaf, isolates lesions, textures and insect damage in under three seconds.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <span class="step-num">03 — Explain</span>
+          <h3>See the reasoning</h3>
+          <p>A heatmap overlay shows exactly which regions drove the diagnosis, alongside a plain-language explanation.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg></div>
+          <span class="step-num">04 — Act</span>
+          <h3>Get a treatment plan</h3>
+          <p>Receive dosed treatment options, organic alternatives and a prevention checklist tailored to your crop.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="section-pad" style="background:var(--mist-100);">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Everything you need</span>
+        <h2>One tool, from first symptom to full recovery.</h2>
+        <p>Leaf Aid isn't just a classifier — it's a full diagnosis-to-treatment workflow built for growers, students and agronomists.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card wide reveal">
+          <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <h3>Explainable AI, not a black box</h3>
+          <p>Every diagnosis ships with a Grad-CAM-style heatmap, bounding boxes on affected regions, and a written rationale — so you can verify the model instead of just trusting it.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <h3>AI chatbot support</h3>
+          <p>Ask follow-up questions in plain language — "is this contagious?", "what's a safe organic spray?" — and get instant, grounded answers.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></svg></div>
+          <h3>One-tap image upload</h3>
+          <p>Drag, drop or snap a photo. Leaf Aid handles blurry shots, mixed lighting and multiple leaves in one frame.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg></div>
+          <h3>Treatment &amp; prevention</h3>
+          <p>Dosed, crop-specific treatment plans plus a prevention checklist so the disease doesn't come back next season.</p>
+        </div>
+        <div class="feature-card wide reveal">
+          <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg></div>
+          <h3>A dashboard that remembers everything</h3>
+          <p>Every scan is saved with its confidence score, severity and treatment history — so you can track how a field is recovering over an entire season.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPLAINABLE AI SHOWCASE ================= -->
+  <section class="section-pad" id="xai">
+    <div class="container">
+      <div class="xai">
+        <div class="xai-grid">
+          <div class="reveal">
+            <div class="xai-visual">
+              <img src="assets/leaf-analysis.svg" alt="Heatmap showing the leaf regions the AI used to reach its diagnosis">
+            </div>
+            <div class="xai-legend">
+              <span><i style="background:#E1613F"></i> High-influence region</span>
+              <span><i style="background:#D4A94C"></i> Medium-influence region</span>
+              <span><i style="background:#9BE3B8"></i> Detected object</span>
+            </div>
+          </div>
+          <div class="reveal">
+            <span class="eyebrow on-dark">Explainable AI</span>
+            <h2 style="color:#fff;margin:1rem 0 1.4rem;font-size:clamp(1.7rem,2.6vw,2.2rem);">Trust, but verify — every single time.</h2>
+            <div class="xai-points">
+              <div class="xai-point">
+                <span class="n">01</span>
+                <div><h4>Saliency &amp; Grad-CAM overlays</h4><p>See the exact pixels that pushed the model toward its answer, rendered directly on your photo.</p></div>
+              </div>
+              <div class="xai-point">
+                <span class="n">02</span>
+                <div><h4>Region-level confidence</h4><p>Each detected lesion, hole or insect gets its own bounding box and confidence score — not just one number for the whole leaf.</p></div>
+              </div>
+              <div class="xai-point">
+                <span class="n">03</span>
+                <div><h4>Plain-language rationale</h4><p>"Concentric rings + yellow halo" reads like an agronomist's note, not a probability vector.</p></div>
+              </div>
+              <div class="xai-point">
+                <span class="n">04</span>
+                <div><h4>Exportable diagnosis report</h4><p>Share a clean PDF with a co-op, extension officer or supplier when a second opinion is needed.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DISEASE LIBRARY ================= -->
+  <section class="section-pad" style="background:var(--mist-100);" id="library">
+    <div class="container" data-lib-root>
+      <div class="section-head reveal">
+        <span class="eyebrow">Disease library</span>
+        <h2>Search 120+ diseases across 40 crops.</h2>
+        <p>Every entry includes symptoms, causes, dosed treatment and a prevention checklist — written for the field, not a textbook.</p>
+      </div>
+
+      <div class="lib-toolbar reveal">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" placeholder="Search a disease or crop — e.g. tomato, mildew…">
+        </div>
+        <div class="chip-filters">
+          <button class="chip-filter active" data-filter="all">All</button>
+          <button class="chip-filter" data-filter="high">High severity</button>
+          <button class="chip-filter" data-filter="Tomato">Tomato</button>
+          <button class="chip-filter" data-filter="Cucumber">Cucumber</button>
+          <button class="chip-filter" data-filter="Wheat">Wheat</button>
+        </div>
+      </div>
+
+      <div class="disease-grid">
+        <div class="disease-card reveal" data-name="Early Blight" data-crop="Tomato" data-severity="high"
+             data-desc="A fungal disease causing concentric brown rings on lower leaves, spreading upward as the season progresses."
+             data-treat="Remove infected foliage, apply copper-based fungicide every 7–10 days, and avoid overhead watering."
+             data-prevent="Rotate crops every 2–3 years, mulch to reduce soil splash, and stake plants for airflow.">
+          <div class="disease-thumb"><img src="assets/thumb-blight.svg" alt="Tomato leaf with early blight spots"><span class="severity-tag high">High risk</span></div>
+          <div class="disease-body">
+            <span class="crop-tag">Tomato</span>
+            <h3>Early Blight</h3>
+            <p>Concentric dark rings with a yellow halo, starting on older leaves.</p>
+          </div>
+        </div>
+
+        <div class="disease-card reveal" data-name="Powdery Mildew" data-crop="Cucumber" data-severity="medium"
+             data-desc="A surface fungal growth that coats leaves in a white powder, thriving in humid, low-light conditions."
+             data-treat="Apply sulfur or potassium bicarbonate spray, prune affected leaves and increase plant spacing."
+             data-prevent="Water at the base in the morning, avoid excess nitrogen, and prune for airflow.">
+          <div class="disease-thumb"><img src="assets/thumb-mildew.svg" alt="Cucumber leaf with powdery mildew"><span class="severity-tag medium">Medium risk</span></div>
+          <div class="disease-body">
+            <span class="crop-tag">Cucumber</span>
+            <h3>Powdery Mildew</h3>
+            <p>White powdery patches spreading across the leaf surface.</p>
+          </div>
+        </div>
+
+        <div class="disease-card reveal" data-name="Leaf Rust" data-crop="Wheat" data-severity="medium"
+             data-desc="Orange-brown pustules that rupture and spread rust spores quickly by wind across a field."
+             data-treat="Apply a triazole-based fungicide at first sign of pustules and remove volunteer host plants."
+             data-prevent="Plant rust-resistant cultivars and avoid dense planting during humid stretches.">
+          <div class="disease-thumb"><img src="assets/thumb-rust.svg" alt="Wheat leaf with rust pustules"><span class="severity-tag medium">Medium risk</span></div>
+          <div class="disease-body">
+            <span class="crop-tag">Wheat</span>
+            <h3>Leaf Rust</h3>
+            <p>Small orange pustules scattered across the leaf blade.</p>
+          </div>
+        </div>
+
+        <div class="disease-card reveal" data-name="Insect Feeding Damage" data-crop="Cabbage" data-severity="low"
+             data-desc="Irregular chewed holes with clean margins, often with visible larvae on the underside of the leaf."
+             data-treat="Hand-pick visible pests, introduce beneficial insects, or apply an organic neem-oil spray."
+             data-prevent="Use row covers on young plants and inspect leaf undersides weekly for eggs.">
+          <div class="disease-thumb"><img src="assets/thumb-insect.svg" alt="Cabbage leaf with insect feeding holes"><span class="severity-tag low">Low risk</span></div>
+          <div class="disease-body">
+            <span class="crop-tag">Cabbage</span>
+            <h3>Insect Feeding Damage</h3>
+            <p>Irregular holes and chewed margins from active pests.</p>
+          </div>
+        </div>
+
+        <div class="disease-card reveal" data-name="Bacterial Leaf Spot" data-crop="Tomato" data-severity="high"
+             data-desc="Small, dark, water-soaked spots that enlarge and merge, often with a yellow ring, worsened by wet foliage."
+             data-treat="Apply copper-based bactericide, remove infected debris, and avoid working in wet fields."
+             data-prevent="Use certified disease-free seed, avoid overhead irrigation, and rotate away from nightshades." >
+          <div class="disease-thumb"><img src="assets/thumb-blight.svg" alt="Tomato leaf with bacterial leaf spot" style="filter:hue-rotate(35deg)"><span class="severity-tag high">High risk</span></div>
+          <div class="disease-body">
+            <span class="crop-tag">Tomato</span>
+            <h3>Bacterial Leaf Spot</h3>
+            <p>Water-soaked spots that merge into larger dark lesions.</p>
+          </div>
+        </div>
+
+        <div class="disease-card reveal" data-name="Downy Mildew" data-crop="Cucumber" data-severity="high"
+             data-desc="Yellow angular patches on top of leaves with a grayish fuzz underneath, spreading fast in cool, wet weather."
+             data-treat="Apply a targeted fungicide early, remove infected leaves and improve field drainage."
+             data-prevent="Choose resistant varieties, avoid overhead watering, and increase row spacing.">
+          <div class="disease-thumb"><img src="assets/thumb-mildew.svg" alt="Cucumber leaf with downy mildew" style="filter:hue-rotate(-20deg)"><span class="severity-tag high">High risk</span></div>
+          <div class="disease-body">
+            <span class="crop-tag">Cucumber</span>
+            <h3>Downy Mildew</h3>
+            <p>Angular yellow patches with fuzzy gray undersides.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:44px;">
+        <a href="dashboard.html#library" class="btn btn-primary">Open full disease library</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIAL ================= -->
+  <section class="section-pad">
+    <div class="container quote-wrap reveal">
+      <div class="quote-card glass" style="background:var(--mist-100);border-color:var(--mist-200);">
+        <blockquote>Leaf Aid caught early blight in our tomato rows four days before we would have noticed it walking the field. The heatmap made it easy to show new staff exactly what to look for.</blockquote>
+        <div class="quote-attr">
+          <div class="quote-avatar"></div>
+          <div><strong>Maria Ochieng</strong><span>Field Agronomist, Rift Valley Cooperative</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA BANNER ================= -->
+  <section style="padding:0 0 120px;">
+    <div class="container reveal">
+      <div class="cta-banner">
+        <h2>Your next diagnosis takes less time than reading this sentence.</h2>
+        <div class="cta-actions">
+          <a href="signup.html" class="btn btn-amber">Create free account</a>
+          <a href="login.html" class="btn btn-ghost on-dark">Log in</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><img src="assets/logo.svg" class="logo-mark" alt=""><span>Leaf Aid</span></div>
+        <p style="font-size:.88rem;max-width:280px;line-height:1.6;">Explainable AI diagnosis for healthier crops — built with agronomists, tested in the field.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="index.html#how">How it works</a></li>
+          <li><a href="index.html#xai">Explainable AI</a></li>
+          <li><a href="index.html#library">Disease library</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Account</h4>
+        <ul>
+          <li><a href="login.html">Log in</a></li>
+          <li><a href="signup.html">Create account</a></li>
+          <li><a href="dashboard.html">My scans</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Research</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Leaf Aid. All rights reserved.</span>
+      <span>Made for growers, students &amp; agronomists.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= DISEASE MODAL ================= -->
+<div id="diseaseModal" style="position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;">
+  <style>#diseaseModal.open{display:flex;} #diseaseModal .backdrop{position:absolute;inset:0;background:rgba(6,20,15,.6);backdrop-filter:blur(4px);}</style>
+  <div class="backdrop" data-close-modal></div>
+  <div class="glass" style="position:relative;max-width:520px;width:100%;padding:36px;background:#fff;">
+    <button data-close-modal style="position:absolute;top:20px;right:20px;width:34px;height:34px;border-radius:10px;background:var(--mist-100);border:none;display:flex;align-items:center;justify-content:center;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <span class="eyebrow m-crop">Crop</span>
+    <h3 class="m-title" style="font-size:1.5rem;margin:.7rem 0 1.2rem;">Disease name</h3>
+    <p class="m-desc" style="color:var(--ink-700);line-height:1.6;font-size:.94rem;margin-bottom:18px;"></p>
+    <div style="margin-bottom:14px;">
+      <strong style="font-size:.82rem;">Treatment</strong>
+      <p class="m-treat" style="color:var(--ink-500);font-size:.88rem;line-height:1.6;margin-top:4px;"></p>
+    </div>
+    <div>
+      <strong style="font-size:.82rem;">Prevention</strong>
+      <p class="m-prevent" style="color:var(--ink-500);font-size:.88rem;line-height:1.6;margin-top:4px;"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CHATBOT WIDGET ================= -->
+<button class="chat-launcher" aria-label="Open Leaf Aid assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="ping"></span>
+</button>
+<div class="chat-panel">
+  <div class="chat-head">
+    <div class="who">
+      <div class="av"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div><strong>Leaf Aid Assistant</strong><span>Online</span></div>
+    </div>
+    <button class="chat-close" aria-label="Close chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="chat-body">
+    <div class="msg bot">Hi! I'm the Leaf Aid assistant 🌿 Ask me about a symptom, a treatment, or how to read a confidence score.</div>
+    <div class="msg-suggestions">
+      <button>Yellow spots on tomato leaves</button>
+      <button>How to prevent mildew?</button>
+      <button>What does confidence mean?</button>
+    </div>
+  </div>
+  <div class="chat-input">
+    <input type="text" placeholder="Ask about a symptom or treatment…">
+    <button aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>
+  </div>
+</div>
+
+<script src="assets/script.js"></script>
+</body>
+</html>

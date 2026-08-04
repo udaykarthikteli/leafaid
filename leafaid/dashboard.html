@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Leaf Aid</title>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="app-sidebar" id="appSidebar">
+    <a href="index.html" class="brand">
+      <img src="assets/logo.svg" class="logo-mark" alt="Leaf Aid logo">
+      <span style="color:#fff;">Leaf Aid<br><small style="font-family:var(--font-mono);font-size:.58rem;letter-spacing:.14em;color:var(--sage-300);text-transform:uppercase;">Dashboard</small></span>
+    </a>
+
+    <div class="side-section">
+      <span class="side-label">Workspace</span>
+      <a class="side-link active" data-page="overview" href="#overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Overview
+      </a>
+      <a class="side-link" data-page="diagnose" href="#diagnose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        Diagnose
+      </a>
+      <a class="side-link" data-page="history" href="#history">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg>
+        Scan history
+      </a>
+      <a class="side-link" data-page="library" href="#library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Disease library
+      </a>
+    </div>
+
+    <div class="side-section">
+      <span class="side-label">Assistant</span>
+      <a class="side-link" id="openChatFromSide" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Ask Leaf Aid
+      </a>
+      <a class="side-link" data-page="settings" href="#settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.4 1z"/></svg>
+        Settings
+      </a>
+    </div>
+
+    <div class="side-user">
+      <div class="avatar"></div>
+      <div><strong>Amara Diallo</strong><span>Commercial grower</span></div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="app-main">
+    <div class="app-topbar">
+      <button class="icon-btn" data-sidebar-toggle aria-label="Toggle menu" style="display:none;" id="mobileToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search scans, diseases, crops…">
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="dot"></span></button>
+        <a href="index.html" class="icon-btn" aria-label="Log out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></a>
+      </div>
+    </div>
+
+    <!-- ========== OVERVIEW ========== -->
+    <section class="page active" id="page-overview">
+      <div class="page-head">
+        <div><h1>Welcome back, Amara 🌿</h1><p>Here's what's happening across your fields this week.</p></div>
+        <a href="#diagnose" class="btn btn-primary btn-sm" data-goto="diagnose">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New diagnosis
+        </a>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="s-icon" style="background:var(--canopy-600);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+          <span class="trend up">+18%</span>
+          <h3>312</h3><span class="label">Scans this month</span>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon" style="background:var(--coral-500);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+          <span class="trend down">-6%</span>
+          <h3>27</h3><span class="label">High-severity cases</span>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon" style="background:var(--amber-400);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg></div>
+          <span class="trend up">+2.1%</span>
+          <h3>96.4%</h3><span class="label">Avg. confidence</span>
+        </div>
+        <div class="stat-card">
+          <div class="s-icon" style="background:var(--forest-900);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+          <span class="trend up">6 crops</span>
+          <h3>14</h3><span class="label">Fields tracked</span>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel-head"><h3>Scans per day, this week</h3><span style="font-family:var(--font-mono);font-size:.72rem;color:var(--ink-500);">Mon–Sun</span></div>
+          <div class="mini-chart">
+            <div class="bar" style="height:38%;background:linear-gradient(180deg,#8FC79E,#2F8F63)"><span>Mon</span></div>
+            <div class="bar" style="height:62%"><span>Tue</span></div>
+            <div class="bar" style="height:44%"><span>Wed</span></div>
+            <div class="bar" style="height:80%"><span>Thu</span></div>
+            <div class="bar" style="height:56%"><span>Fri</span></div>
+            <div class="bar" style="height:94%;background:linear-gradient(180deg,var(--amber-300),var(--amber-400))"><span>Sat</span></div>
+            <div class="bar" style="height:70%"><span>Sun</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Severity breakdown</h3></div>
+          <div class="donut-wrap">
+            <svg class="donut" viewBox="0 0 42 42">
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--mist-200)" stroke-width="6"></circle>
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#2F8F63" stroke-width="6" stroke-dasharray="55 45" stroke-dashoffset="25" stroke-linecap="round"></circle>
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#D4A94C" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="-30" stroke-linecap="round"></circle>
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#E1613F" stroke-width="6" stroke-dasharray="15 85" stroke-dashoffset="-60" stroke-linecap="round"></circle>
+            </svg>
+            <div class="donut-legend">
+              <span><i style="background:#2F8F63"></i> Low — 55%</span>
+              <span><i style="background:#D4A94C"></i> Medium — 30%</span>
+              <span><i style="background:#E1613F"></i> High — 15%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:22px;">
+        <div class="panel-head"><h3>Recent scans</h3><a href="#history" data-goto="history">View all</a></div>
+        <div class="history-item">
+          <div class="history-thumb"><img src="assets/thumb-blight.svg" alt=""></div>
+          <div class="h-body"><strong>Early Blight — Tomato, Field 3</strong><span>2 hours ago · 96% confidence</span></div>
+          <span class="status-dot high"></span>
+        </div>
+        <div class="history-item">
+          <div class="history-thumb"><img src="assets/thumb-mildew.svg" alt=""></div>
+          <div class="h-body"><strong>Powdery Mildew — Cucumber, Field 1</strong><span>Yesterday · 91% confidence</span></div>
+          <span class="status-dot medium"></span>
+        </div>
+        <div class="history-item">
+          <div class="history-thumb"><img src="assets/thumb-insect.svg" alt=""></div>
+          <div class="h-body"><strong>Insect Feeding Damage — Cabbage, Field 4</strong><span>2 days ago · 84% confidence</span></div>
+          <span class="status-dot low"></span>
+        </div>
+        <div class="history-item">
+          <div class="history-thumb"><img src="assets/thumb-rust.svg" alt=""></div>
+          <div class="h-body"><strong>Leaf Rust — Wheat, Field 7</strong><span>3 days ago · 88% confidence</span></div>
+          <span class="status-dot medium"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== DIAGNOSE ========== -->
+    <section class="page" id="page-diagnose">
+      <div class="page-head">
+        <div><h1>Diagnose a leaf</h1><p>Upload a clear photo — Leaf Aid detects the disease and shows exactly why.</p></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel-head"><h3>Upload photo</h3></div>
+          <div class="dropzone" id="dropzone">
+            <div class="dz-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></svg></div>
+            <h4>Drag &amp; drop a leaf photo</h4>
+            <p>or click to browse — JPG, PNG up to 10MB</p>
+            <button type="button" class="btn btn-primary btn-sm">Choose photo</button>
+            <input type="file" id="fileInput" accept="image/*">
+          </div>
+
+          <div class="result-wrap" id="resultWrap">
+            <div class="result-top">
+              <div class="preview-box">
+                <img src="" alt="Uploaded leaf photo">
+                <div class="layer-analysis" style="position:absolute;inset:0;opacity:0;transition:opacity .4s ease;">
+                  <img src="assets/leaf-analysis.svg" alt="AI overlay" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="xai-toggle">
+                  <button class="active" data-mode="raw">Raw photo</button>
+                  <button data-mode="ai">AI heatmap</button>
+                </div>
+              </div>
+              <div class="diagnosis-card">
+                <span class="mini-tag severity-pill sev-high">HIGH SEVERITY</span>
+                <h4 class="disease-name" style="margin-top:10px;">Early Blight</h4>
+                <p class="crop-line" style="color:var(--ink-500);font-size:.88rem;">Detected on Tomato leaf</p>
+                <div class="confidence-bar">
+                  <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
+                  <div class="bar-label"><span class="bar-confidence-val">0% confidence</span><span>Model v4.2</span></div>
+                </div>
+                <div class="reason-list"></div>
+              </div>
+            </div>
+
+            <div class="tabs">
+              <button class="tab-btn active" data-tab="symptoms">Symptoms</button>
+              <button class="tab-btn" data-tab="treatment">Treatment</button>
+              <button class="tab-btn" data-tab="prevention">Prevention</button>
+            </div>
+            <div class="tab-panel symptoms active"></div>
+            <div class="tab-panel treatment"></div>
+            <div class="tab-panel prevention"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Tips for a great scan</h3></div>
+          <div class="tab-panel active" style="display:block;">
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Use natural daylight — avoid strong flash or shadows.</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Fill the frame with a single leaf, spots and edges visible.</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Hold the camera steady and about 20cm from the leaf.</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>Include both healthy and affected areas for context.</span></li>
+            </ul>
+          </div>
+          <div class="panel-head" style="margin-top:26px;"><h3>Ask the assistant</h3></div>
+          <p style="font-size:.88rem;color:var(--ink-500);line-height:1.6;margin-bottom:14px;">Not sure what you're looking at? Open the chatbot and describe the symptom in your own words.</p>
+          <button class="btn btn-ghost btn-block" id="openChatFromDiagnose" style="border-color:var(--mist-200);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Chat with Leaf Aid
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HISTORY ========== -->
+    <section class="page" id="page-history">
+      <div class="page-head"><div><h1>Scan history</h1><p>Every diagnosis you've run, searchable by crop, disease or field.</p></div></div>
+      <div class="panel">
+        <div class="history-item"><div class="history-thumb"><img src="assets/thumb-blight.svg" alt=""></div><div class="h-body"><strong>Early Blight — Tomato, Field 3</strong><span>Today, 10:24am · 96% confidence</span></div><span class="status-dot high"></span></div>
+        <div class="history-item"><div class="history-thumb"><img src="assets/thumb-mildew.svg" alt=""></div><div class="h-body"><strong>Powdery Mildew — Cucumber, Field 1</strong><span>Yesterday, 4:10pm · 91% confidence</span></div><span class="status-dot medium"></span></div>
+        <div class="history-item"><div class="history-thumb"><img src="assets/thumb-insect.svg" alt=""></div><div class="h-body"><strong>Insect Feeding Damage — Cabbage, Field 4</strong><span>2 days ago · 84% confidence</span></div><span class="status-dot low"></span></div>
+        <div class="history-item"><div class="history-thumb"><img src="assets/thumb-rust.svg" alt=""></div><div class="h-body"><strong>Leaf Rust — Wheat, Field 7</strong><span>3 days ago · 88% confidence</span></div><span class="status-dot medium"></span></div>
+        <div class="history-item"><div class="history-thumb"><img src="assets/thumb-blight.svg" alt=""></div><div class="h-body"><strong>Bacterial Leaf Spot — Tomato, Field 3</strong><span>5 days ago · 93% confidence</span></div><span class="status-dot high"></span></div>
+        <div class="history-item"><div class="history-thumb"><img src="assets/thumb-mildew.svg" alt=""></div><div class="h-body"><strong>Downy Mildew — Cucumber, Field 2</strong><span>1 week ago · 89% confidence</span></div><span class="status-dot high"></span></div>
+        <div class="history-item"><div class="history-thumb"><img src="assets/thumb-insect.svg" alt=""></div><div class="h-body"><strong>Healthy leaf — Cabbage, Field 4</strong><span>1 week ago · 99% confidence</span></div><span class="status-dot low"></span></div>
+      </div>
+    </section>
+
+    <!-- ========== LIBRARY ========== -->
+    <section class="page" id="page-library">
+      <div class="page-head"><div><h1>Disease library</h1><p>Search and filter 120+ diseases across 40 crops.</p></div></div>
+      <div data-lib-root>
+        <div class="lib-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" placeholder="Search a disease or crop…">
+          </div>
+          <div class="chip-filters">
+            <button class="chip-filter active" data-filter="all">All</button>
+            <button class="chip-filter" data-filter="high">High severity</button>
+            <button class="chip-filter" data-filter="Tomato">Tomato</button>
+            <button class="chip-filter" data-filter="Cucumber">Cucumber</button>
+            <button class="chip-filter" data-filter="Wheat">Wheat</button>
+          </div>
+        </div>
+        <div class="disease-grid">
+          <div class="disease-card" data-name="Early Blight" data-crop="Tomato" data-severity="high"
+               data-desc="A fungal disease causing concentric brown rings on lower leaves, spreading upward as the season progresses."
+               data-treat="Remove infected foliage, apply copper-based fungicide every 7–10 days, and avoid overhead watering."
+               data-prevent="Rotate crops every 2–3 years, mulch to reduce soil splash, and stake plants for airflow.">
+            <div class="disease-thumb"><img src="assets/thumb-blight.svg" alt=""><span class="severity-tag high">High risk</span></div>
+            <div class="disease-body"><span class="crop-tag">Tomato</span><h3>Early Blight</h3><p>Concentric dark rings with a yellow halo.</p></div>
+          </div>
+          <div class="disease-card" data-name="Powdery Mildew" data-crop="Cucumber" data-severity="medium"
+               data-desc="A surface fungal growth that coats leaves in a white powder, thriving in humid, low-light conditions."
+               data-treat="Apply sulfur or potassium bicarbonate spray, prune affected leaves and increase plant spacing."
+               data-prevent="Water at the base in the morning, avoid excess nitrogen, and prune for airflow.">
+            <div class="disease-thumb"><img src="assets/thumb-mildew.svg" alt=""><span class="severity-tag medium">Medium risk</span></div>
+            <div class="disease-body"><span class="crop-tag">Cucumber</span><h3>Powdery Mildew</h3><p>White powdery patches on the leaf surface.</p></div>
+          </div>
+          <div class="disease-card" data-name="Leaf Rust" data-crop="Wheat" data-severity="medium"
+               data-desc="Orange-brown pustules that rupture and spread rust spores quickly by wind across a field."
+               data-treat="Apply a triazole-based fungicide at first sign of pustules and remove volunteer host plants."
+               data-prevent="Plant rust-resistant cultivars and avoid dense planting during humid stretches.">
+            <div class="disease-thumb"><img src="assets/thumb-rust.svg" alt=""><span class="severity-tag medium">Medium risk</span></div>
+            <div class="disease-body"><span class="crop-tag">Wheat</span><h3>Leaf Rust</h3><p>Orange pustules scattered across the blade.</p></div>
+          </div>
+          <div class="disease-card" data-name="Insect Feeding Damage" data-crop="Cabbage" data-severity="low"
+               data-desc="Irregular chewed holes with clean margins, often with visible larvae on the underside of the leaf."
+               data-treat="Hand-pick visible pests, introduce beneficial insects, or apply an organic neem-oil spray."
+               data-prevent="Use row covers on young plants and inspect leaf undersides weekly for eggs.">
+            <div class="disease-thumb"><img src="assets/thumb-insect.svg" alt=""><span class="severity-tag low">Low risk</span></div>
+            <div class="disease-body"><span class="crop-tag">Cabbage</span><h3>Insect Feeding Damage</h3><p>Irregular holes from active pests.</p></div>
+          </div>
+          <div class="disease-card" data-name="Bacterial Leaf Spot" data-crop="Tomato" data-severity="high"
+               data-desc="Small, dark, water-soaked spots that enlarge and merge, often with a yellow ring, worsened by wet foliage."
+               data-treat="Apply copper-based bactericide, remove infected debris, and avoid working in wet fields."
+               data-prevent="Use certified disease-free seed, avoid overhead irrigation, and rotate away from nightshades.">
+            <div class="disease-thumb"><img src="assets/thumb-blight.svg" alt="" style="filter:hue-rotate(35deg)"><span class="severity-tag high">High risk</span></div>
+            <div class="disease-body"><span class="crop-tag">Tomato</span><h3>Bacterial Leaf Spot</h3><p>Water-soaked spots merging into lesions.</p></div>
+          </div>
+          <div class="disease-card" data-name="Downy Mildew" data-crop="Cucumber" data-severity="high"
+               data-desc="Yellow angular patches on top of leaves with a grayish fuzz underneath, spreading fast in cool, wet weather."
+               data-treat="Apply a targeted fungicide early, remove infected leaves and improve field drainage."
+               data-prevent="Choose resistant varieties, avoid overhead watering, and increase row spacing.">
+            <div class="disease-thumb"><img src="assets/thumb-mildew.svg" alt="" style="filter:hue-rotate(-20deg)"><span class="severity-tag high">High risk</span></div>
+            <div class="disease-body"><span class="crop-tag">Cucumber</span><h3>Downy Mildew</h3><p>Angular yellow patches, fuzzy undersides.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SETTINGS ========== -->
+    <section class="page" id="page-settings">
+      <div class="page-head"><div><h1>Settings</h1><p>Manage your profile and notification preferences.</p></div></div>
+      <div class="panel" style="max-width:560px;">
+        <div class="form-row two">
+          <div><label>First name</label><div class="input-wrap" style="padding-left:0;"><input style="padding-left:1rem;" type="text" value="Amara"></div></div>
+          <div><label>Last name</label><div class="input-wrap"><input style="padding-left:1rem;" type="text" value="Diallo"></div></div>
+        </div>
+        <div class="form-row"><label>Email</label><div class="input-wrap"><input style="padding-left:1rem;" type="email" value="amara@farmmail.com"></div></div>
+        <div class="form-row"><label>Primary crop</label><div class="input-wrap"><select style="padding-left:1rem;"><option>Tomato</option><option>Cucumber</option><option>Wheat</option><option>Cabbage</option></select></div></div>
+        <label class="check-row" style="margin-bottom:20px;"><input type="checkbox" checked> Email me weekly field summaries</label>
+        <button class="btn btn-primary" type="button" onclick="showToast('Settings saved')">Save changes</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= CHATBOT WIDGET ================= -->
+<button class="chat-launcher" aria-label="Open Leaf Aid assistant">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="ping"></span>
+</button>
+<div class="chat-panel">
+  <div class="chat-head">
+    <div class="who">
+      <div class="av"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div><strong>Leaf Aid Assistant</strong><span>Online</span></div>
+    </div>
+    <button class="chat-close" aria-label="Close chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="chat-body">
+    <div class="msg bot">Hi Amara 👋 Want me to walk through your last scan, or answer a general question?</div>
+    <div class="msg-suggestions">
+      <button>Explain my last diagnosis</button>
+      <button>Treatment for early blight</button>
+      <button>Prevent it next season</button>
+    </div>
+  </div>
+  <div class="chat-input">
+    <input type="text" placeholder="Ask about a symptom or treatment…">
+    <button aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>
+  </div>
+</div>
+
+<script src="assets/script.js"></script>
+<script src="assets/dashboard.js"></script>
+</body>
+</html>

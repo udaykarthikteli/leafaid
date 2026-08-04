@@ -1,0 +1,36 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Leaf Aid logo">
+  <defs>
+    <linearGradient id="lg-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123F30"/>
+      <stop offset="1" stop-color="#061F17"/>
+    </linearGradient>
+    <linearGradient id="lg-leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7FCB9E"/>
+      <stop offset="1" stop-color="#2F8F63"/>
+    </linearGradient>
+    <linearGradient id="lg-lens" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E6C374"/>
+      <stop offset="1" stop-color="#D4A94C"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="62" height="62" rx="18" fill="url(#lg-bg)"/>
+  <rect x="1" y="1" width="62" height="62" rx="18" fill="none" stroke="rgba(255,255,255,0.10)"/>
+
+  <!-- leaf -->
+  <g transform="translate(6,4) rotate(-8 26 30)">
+    <path d="M26 6 C40 10 46 24 40 38 C35 50 22 54 14 48 C8 44 8 34 12 26 C16 17 19 10 26 6 Z"
+          fill="url(#lg-leaf)"/>
+    <path d="M26 6 C22 18 20 34 15 47" stroke="#0E4535" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".55"/>
+    <path d="M23 16 C19 18 17 21 16 24" stroke="#0E4535" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".4"/>
+    <path d="M21 26 C17 28 15 31 14.5 34" stroke="#0E4535" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".4"/>
+    <path d="M19 36 C16 38 15 40 14.5 42" stroke="#0E4535" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".4"/>
+  </g>
+
+  <!-- magnifying glass -->
+  <g transform="translate(30,28)">
+    <circle cx="12" cy="12" r="11.5" fill="rgba(250,252,249,0.14)" stroke="url(#lg-lens)" stroke-width="3"/>
+    <line x1="20" y1="20" x2="28" y2="28" stroke="url(#lg-lens)" stroke-width="4" stroke-linecap="round"/>
+    <path d="M6 10 C6.5 6.5 9 4.5 12.5 4.5" stroke="rgba(255,255,255,0.55)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

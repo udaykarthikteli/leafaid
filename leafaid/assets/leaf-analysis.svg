@@ -1,0 +1,78 @@
+<svg viewBox="0 0 600 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI diagnosis overlay highlighting detected disease regions on the leaf">
+  <defs>
+    <linearGradient id="leafFillDim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#274B39"/>
+      <stop offset="1" stop-color="#123023"/>
+    </linearGradient>
+    <radialGradient id="heat1" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#E1613F" stop-opacity=".85"/>
+      <stop offset=".6" stop-color="#E1613F" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#E1613F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="heat2" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#D4A94C" stop-opacity=".75"/>
+      <stop offset=".65" stop-color="#D4A94C" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#D4A94C" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M30 0H0V30" fill="none" stroke="#9BE3B8" stroke-width="0.5" opacity=".28"/>
+    </pattern>
+    <clipPath id="bladeClip">
+      <path d="M300 28
+               C 428 56 528 156 548 296
+               C 568 438 476 566 342 596
+               C 258 616 176 584 126 500
+               C 78 418 66 296 108 196
+               C 150 96 222 40 300 28 Z"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#bladeClip)">
+    <path d="M300 28 C 428 56 528 156 548 296 C 568 438 476 566 342 596 C 258 616 176 584 126 500 C 78 418 66 296 108 196 C 150 96 222 40 300 28 Z" fill="url(#leafFillDim)"/>
+    <rect x="0" y="0" width="600" height="640" fill="url(#grid)"/>
+    <!-- heat blobs aligned to leaf-base spot coordinates -->
+    <circle cx="410" cy="300" r="70" fill="url(#heat1)"/>
+    <circle cx="212" cy="238" r="58" fill="url(#heat1)"/>
+    <circle cx="268" cy="420" r="46" fill="url(#heat2)"/>
+    <circle cx="330" cy="180" r="42" fill="url(#heat2)"/>
+    <circle cx="182" cy="368" r="34" fill="url(#heat2)"/>
+  </g>
+
+  <!-- scan sweep line -->
+  <line x1="70" y1="0" x2="70" y2="640" stroke="#9BE3B8" stroke-width="1" opacity="0"/>
+
+  <!-- bounding boxes + labels -->
+  <g font-family="JetBrains Mono, monospace" font-size="13" font-weight="600">
+    <g>
+      <rect x="368" y="256" width="88" height="88" rx="6" fill="none" stroke="#E1613F" stroke-width="2" stroke-dasharray="4 4"/>
+      <rect x="368" y="238" width="112" height="20" rx="4" fill="#E1613F"/>
+      <text x="374" y="253" fill="#fff">BLIGHT 96%</text>
+    </g>
+    <g>
+      <rect x="172" y="196" width="80" height="82" rx="6" fill="none" stroke="#E1613F" stroke-width="2" stroke-dasharray="4 4"/>
+      <rect x="172" y="178" width="110" height="20" rx="4" fill="#E1613F"/>
+      <text x="178" y="193" fill="#fff">LESION 91%</text>
+    </g>
+    <g>
+      <rect x="232" y="386" width="72" height="68" rx="6" fill="none" stroke="#D4A94C" stroke-width="2" stroke-dasharray="4 4"/>
+      <rect x="232" y="368" width="96" height="20" rx="4" fill="#D4A94C"/>
+      <text x="238" y="383" fill="#12201A">SPOT 74%</text>
+    </g>
+    <g>
+      <rect x="292" y="146" width="76" height="68" rx="6" fill="none" stroke="#D4A94C" stroke-width="2" stroke-dasharray="4 4"/>
+      <rect x="292" y="128" width="112" height="20" rx="4" fill="#D4A94C"/>
+      <text x="298" y="143" fill="#12201A">MILDEW 68%</text>
+    </g>
+    <g>
+      <rect x="410" y="238" width="58" height="42" rx="6" fill="none" stroke="#9BE3B8" stroke-width="2" stroke-dasharray="3 3"/>
+      <rect x="410" y="222" width="98" height="18" rx="4" fill="#0B3D2E" stroke="#9BE3B8" stroke-width="1"/>
+      <text x="414" y="235" fill="#9BE3B8" font-size="11">INSECT 88%</text>
+    </g>
+  </g>
+
+  <!-- crosshair marks over feature points -->
+  <g stroke="#F3FAF6" stroke-width="1.2" opacity=".8">
+    <line x1="405" y1="300" x2="415" y2="300"/><line x1="410" y1="295" x2="410" y2="305"/>
+    <line x1="207" y1="238" x2="217" y2="238"/><line x1="212" y1="233" x2="212" y2="243"/>
+  </g>
+</svg>

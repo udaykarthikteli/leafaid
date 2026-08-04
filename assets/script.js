@@ -262,6 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
     resultWrap.classList.add('show');
     resultWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     showToast('Diagnosis complete — ' + pick.name);
+
+    document.dispatchEvent(new CustomEvent('leafaid:diagnosis', {
+      detail: { name: pick.name, crop: pick.crop, confidence: pick.confidence, severity: pick.severity, imgSrc }
+    }));
   }
 
   function handleFile(file) {

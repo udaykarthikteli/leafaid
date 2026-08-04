@@ -152,23 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
     launcher.addEventListener('click', open);
     panel.querySelector('.chat-close')?.addEventListener('click', close);
 
-    const botReplies = {
-      default: "I can help identify leaf diseases, explain a diagnosis, or suggest treatment. Try asking about a symptom, like 'yellow spots on tomato leaves'.",
-      spot: "Brown spots with a yellow halo often point to early blight or a fungal leaf spot. Upload a photo in Diagnose and I'll pinpoint the exact cause with a confidence score and a highlighted region.",
-      treat: "For fungal infections: remove affected leaves, improve airflow, avoid overhead watering, and apply a copper-based or appropriate fungicide every 7–10 days until symptoms clear.",
-      prevent: "Prevention checklist: rotate crops yearly, water at the base in the morning, space plants for airflow, disinfect tools, and inspect leaves weekly for early signs.",
-      confidence: "Confidence is how sure the model is about its top prediction. Anything above 85% is considered high-confidence. I also show *why* — the exact leaf regions that influenced the result.",
-      hi: "Hello! I'm the Leaf Aid assistant. Upload a leaf photo or ask me anything about plant diseases, treatment, or prevention."
-    };
-    function pickReply(text) {
-      const t = text.toLowerCase();
-      if (/hi|hello|hey/.test(t)) return botReplies.hi;
-      if (/spot|yellow|brown|patch|mildew|rust/.test(t)) return botReplies.spot;
-      if (/treat|cure|fix|fungicide|spray/.test(t)) return botReplies.treat;
-      if (/prevent|avoid|stop/.test(t)) return botReplies.prevent;
-      if (/confiden|sure|accura/.test(t)) return botReplies.confidence;
-      return botReplies.default;
-    }
     function addMsg(text, who) {
       const div = document.createElement('div');
       div.className = 'msg ' + who;
@@ -176,16 +159,34 @@ document.addEventListener('DOMContentLoaded', () => {
       body.appendChild(div);
       body.scrollTop = body.scrollHeight;
     }
-    function botRespond(userText) {
+    async function botRespond(userText) {
       const typing = document.createElement('div');
       typing.className = 'chat-typing';
       typing.innerHTML = '<span></span><span></span><span></span>';
       body.appendChild(typing);
       body.scrollTop = body.scrollHeight;
-      setTimeout(() => {
-        typing.remove();
-        addMsg(pickReply(userText), 'bot');
-      }, 900 + Math.random() * 500);
+
+      let reply;
+      try {
+        const lastDiagnosis = window.__lastDiagnosis || null;
+        const res = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userText,
+            context: lastDiagnosis
+              ? `${lastDiagnosis.name} on ${lastDiagnosis.crop} at ${lastDiagnosis.confidence}% confidence, severity ${lastDiagnosis.severity}.`
+              : null
+          })
+        });
+        const data = await res.json();
+        reply = data.reply || "Sorry, I couldn't reach the assistant just now.";
+      } catch (err) {
+        reply = "I'm having trouble connecting right now — please try again in a moment.";
+      }
+
+      typing.remove();
+      addMsg(reply, 'bot');
     }
     function send() {
       const val = input.value.trim();

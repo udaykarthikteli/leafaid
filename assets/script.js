@@ -2,6 +2,29 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  /* ---------- dark mode toggle ---------- */
+  const THEME_KEY = 'leafaid-theme';
+  const sunIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>';
+  const moonIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>';
+  function applyThemeIcon(btn) {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    btn.innerHTML = isDark ? sunIcon : moonIcon;
+  }
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+    applyThemeIcon(btn);
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem(THEME_KEY, 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem(THEME_KEY, 'dark');
+      }
+      document.querySelectorAll('[data-theme-toggle]').forEach(applyThemeIcon);
+    });
+  });
+
   /* ---------- mobile nav toggle ---------- */
   const navToggle = document.querySelector('.nav-toggle');
   const navLinks = document.querySelector('.nav-links');
@@ -259,6 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resultWrap.querySelector('.tab-panel.symptoms').textContent = pick.symptoms;
     resultWrap.querySelector('.tab-panel.treatment').textContent = pick.treatment;
     resultWrap.querySelector('.tab-panel.prevention').textContent = pick.prevention;
+
+    window.__lastDiagnosis = { name: pick.name, crop: pick.crop, confidence: pick.confidence, severity: pick.severity };
 
     resultWrap.classList.add('show');
     resultWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

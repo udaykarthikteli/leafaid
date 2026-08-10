@@ -6,6 +6,7 @@
 <title>Dashboard — Leaf Aid</title>
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/style.css">
+<script>(function(){try{if(localStorage.getItem('leafaid-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
 </head>
 <body>
 
@@ -67,6 +68,7 @@
         <input type="text" placeholder="Search scans, diseases, crops…">
       </div>
       <div class="topbar-actions">
+        <button class="icon-btn" data-theme-toggle aria-label="Toggle dark mode"></button>
         <button class="icon-btn" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="dot"></span></button>
         <a href="index.html" class="icon-btn" aria-label="Log out" id="logoutBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></a>
       </div>

@@ -110,6 +110,45 @@ if (isDashboard) {
 }
 
 /* ---------------------------------------------------------------
+   Scan notes — toggle the editor open, and save edits to Supabase.
+   Delegated on document since rows are re-rendered on every load.
+--------------------------------------------------------------- */
+document.addEventListener('click', async (e) => {
+  const toggleBtn = e.target.closest('.note-toggle-btn');
+  if (toggleBtn) {
+    const editor = toggleBtn.nextElementSibling;
+    if (editor) editor.hidden = !editor.hidden;
+    return;
+  }
+
+  const saveBtn = e.target.closest('.note-save-btn');
+  if (saveBtn) {
+    const item = saveBtn.closest('.history-item');
+    const scanId = item?.dataset.scanId;
+    const textarea = item?.querySelector('.note-textarea');
+    if (!scanId || !textarea) return;
+
+    const notes = textarea.value.trim();
+    const original = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
+    const { error } = await supabaseClient.from('scans').update({ notes }).eq('id', scanId);
+
+    if (error) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = original;
+      authError('Could not save note — try again.');
+      return;
+    }
+
+    showToast ? showToast('Note saved') : null;
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) loadScans(session.user.id);
+  }
+});
+
+/* ---------------------------------------------------------------
    Fetch this user's scans and render into Recent scans + History
 --------------------------------------------------------------- */
 async function loadScans(userId) {
@@ -127,12 +166,29 @@ async function loadScans(userId) {
     low: 'assets/thumb-insect.svg'
   };
 
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
   function rowHtml(scan) {
     const when = new Date(scan.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     const thumb = scan.image_url || thumbMap[scan.severity] || thumbMap.low;
-    return `<div class="history-item">
+    const notes = scan.notes || '';
+    return `<div class="history-item" data-scan-id="${scan.id}">
       <div class="history-thumb"><img src="${thumb}" alt=""></div>
-      <div class="h-body"><strong>${scan.disease_name}${scan.crop ? ' — ' + scan.crop : ''}</strong><span>${when} · ${scan.confidence || 0}% confidence</span></div>
+      <div class="h-body">
+        <strong>${escapeHtml(scan.disease_name)}${scan.crop ? ' — ' + escapeHtml(scan.crop) : ''}</strong><span>${when} · ${scan.confidence || 0}% confidence</span>
+        <div class="note-area">
+          ${notes ? `<p class="note-preview">📝 ${escapeHtml(notes)}</p>` : ''}
+          <button class="note-toggle-btn" type="button">${notes ? 'Edit note' : '+ Add note'}</button>
+          <div class="note-editor" hidden>
+            <textarea class="note-textarea" placeholder="What did you do about this scan?">${escapeHtml(notes)}</textarea>
+            <button class="note-save-btn" type="button">Save note</button>
+          </div>
+        </div>
+      </div>
       <span class="status-dot ${scan.severity || 'low'}"></span>
     </div>`;
   }

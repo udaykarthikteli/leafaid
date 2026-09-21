@@ -176,7 +176,7 @@ async function loadScans(userId) {
     const when = new Date(scan.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     const thumb = scan.image_url || thumbMap[scan.severity] || thumbMap.low;
     const notes = scan.notes || '';
-    return `<div class="history-item" data-scan-id="${scan.id}">
+    return `<div class="history-item" data-scan-id="${scan.id}" data-feedback="${scan.feedback || ''}">
       <div class="history-thumb"><img src="${thumb}" alt=""></div>
       <div class="h-body">
         <strong>${escapeHtml(scan.disease_name)}${scan.crop ? ' — ' + escapeHtml(scan.crop) : ''}</strong><span>${when} · ${scan.confidence || 0}% confidence</span>

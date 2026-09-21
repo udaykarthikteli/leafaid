@@ -344,3 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.style.animationDelay = (i * 0.08) + 's';
   });
 });
+
+/* ---------- PWA: register service worker ---------- */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}

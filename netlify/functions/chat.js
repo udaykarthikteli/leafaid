@@ -50,7 +50,7 @@ exports.handler = async (event) => {
       return { statusCode: resp.status, body: JSON.stringify({ error: data?.error?.message || 'Gemini API error' }) };
     }
 
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text
+    const reply = data?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join('')
       || "Sorry, I couldn't come up with a reply just now — try asking again.";
 
     return { statusCode: 200, body: JSON.stringify({ reply }) };

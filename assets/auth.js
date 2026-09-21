@@ -257,3 +257,58 @@ document.addEventListener('leafaid:diagnosis', async (e) => {
     console.error('Could not save scan:', err);
   }
 });
+
+/* ---------------------------------------------------------------
+   FORGOT PASSWORD
+--------------------------------------------------------------- */
+const forgotForm = document.getElementById('forgotForm');
+if (forgotForm) {
+  forgotForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = forgotForm.querySelector('button[type=submit]');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    const email = document.getElementById('forgotEmail').value.trim();
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/reset-password.html'
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Send reset link';
+
+    if (error) { authError(error.message); return; }
+    forgotForm.hidden = true;
+    document.getElementById('forgotSuccess').hidden = false;
+  });
+}
+
+/* ---------------------------------------------------------------
+   RESET PASSWORD (landing page from the emailed link)
+--------------------------------------------------------------- */
+const resetForm = document.getElementById('resetForm');
+if (resetForm) {
+  resetForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pw = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+
+    if (pw !== confirm) { authError("Passwords don't match."); return; }
+    if (pw.length < 6) { authError('Password must be at least 6 characters.'); return; }
+
+    const btn = resetForm.querySelector('button[type=submit]');
+    btn.disabled = true;
+    btn.textContent = 'Updating…';
+
+    const { error } = await supabaseClient.auth.updateUser({ password: pw });
+
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = 'Update password';
+      authError(error.message);
+      return;
+    }
+    showToast ? showToast('Password updated') : null;
+    window.location.href = 'dashboard.html';
+  });
+}

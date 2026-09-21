@@ -320,6 +320,13 @@
     <section class="page" id="page-settings">
       <div class="page-head"><div><h1>Settings</h1><p>Manage your profile and notification preferences.</p></div></div>
       <div class="panel" style="max-width:560px;">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+  <div id="avatarPreview" style="width:64px;height:64px;border-radius:16px;background:linear-gradient(155deg,var(--amber-300),var(--amber-400));flex:none;"></div>
+  <div>
+    <button class="btn btn-ghost btn-sm" type="button" id="avatarUploadBtn" style="border-color:var(--mist-200);">Change photo</button>
+    <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+  </div>
+</div>
         <div class="form-row two">
           <div><label>First name</label><div class="input-wrap" style="padding-left:0;"><input style="padding-left:1rem;" type="text" value="Amara"></div></div>
           <div><label>Last name</label><div class="input-wrap"><input style="padding-left:1rem;" type="text" value="Diallo"></div></div>

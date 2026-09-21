@@ -312,3 +312,91 @@ if (resetForm) {
     window.location.href = 'dashboard.html';
   });
 }
+
+/* ---------------------------------------------------------------
+   FEEDBACK (thumbs up/down) — auto-injected into scan rows
+--------------------------------------------------------------- */
+function feedbackRowHtml(current) {
+  return `<div class="feedback-row">
+    <span>Helpful?</span>
+    <button class="feedback-btn up ${current === 'up' ? 'active' : ''}" type="button" data-fb="up" aria-label="Mark helpful">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 22V11M2 13v7a2 2 0 0 0 2 2h12.6a2 2 0 0 0 2-1.7l1.4-8a2 2 0 0 0-2-2.3H15V5a3 3 0 0 0-3-3l-3 7"/></svg>
+    </button>
+    <button class="feedback-btn down ${current === 'down' ? 'active' : ''}" type="button" data-fb="down" aria-label="Mark not helpful">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2v11M22 11V4a2 2 0 0 0-2-2H7.4a2 2 0 0 0-2 1.7L4 11.7a2 2 0 0 0 2 2.3H9v5a3 3 0 0 0 3 3l3-7"/></svg>
+    </button>
+  </div>`;
+}
+
+function injectFeedbackRows(root) {
+  root.querySelectorAll('.history-item').forEach(item => {
+    if (item.querySelector('.feedback-row')) return;
+    const body = item.querySelector('.h-body');
+    if (!body) return;
+    body.insertAdjacentHTML('beforeend', feedbackRowHtml(item.dataset.feedback || ''));
+  });
+}
+
+document.querySelectorAll('#page-history .panel, #page-overview .panel').forEach(panel => {
+  injectFeedbackRows(panel);
+  new MutationObserver(() => injectFeedbackRows(panel)).observe(panel, { childList: true });
+});
+
+document.addEventListener('click', async (e) => {
+  const fbBtn = e.target.closest('.feedback-btn');
+  if (!fbBtn) return;
+  const item = fbBtn.closest('.history-item');
+  const scanId = item?.dataset.scanId;
+  if (!scanId) return;
+
+  const isActive = fbBtn.classList.contains('active');
+  const newValue = isActive ? null : fbBtn.dataset.fb;
+
+  const { error } = await supabaseClient.from('scans').update({ feedback: newValue }).eq('id', scanId);
+  if (!error) {
+    item.dataset.feedback = newValue || '';
+    item.querySelectorAll('.feedback-btn').forEach(b => b.classList.toggle('active', b.dataset.fb === newValue));
+  }
+});
+
+/* ---------------------------------------------------------------
+   AVATAR — apply saved avatar on load, handle new uploads
+--------------------------------------------------------------- */
+function applyAvatar(url) {
+  document.querySelectorAll('.side-user .avatar, #avatarPreview').forEach(el => {
+    el.style.backgroundImage = `url('${url}')`;
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+  });
+}
+
+(async function initAvatar() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session?.user?.user_metadata?.avatar_url) {
+    applyAvatar(session.user.user_metadata.avatar_url);
+  }
+})();
+
+const avatarInput = document.getElementById('avatarInput');
+const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+avatarUploadBtn?.addEventListener('click', () => avatarInput.click());
+avatarInput?.addEventListener('change', async () => {
+  const file = avatarInput.files[0];
+  if (!file) return;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) return;
+  const path = `${session.user.id}/avatar.jpg`;
+
+  const original = avatarUploadBtn.textContent;
+  avatarUploadBtn.textContent = 'Uploading…';
+  const { error: upErr } = await supabaseClient.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+  if (upErr) { authError('Could not upload photo.'); avatarUploadBtn.textContent = original; return; }
+
+  const { data: pub } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+  const avatarUrl = pub.publicUrl + '?t=' + Date.now();
+
+  await supabaseClient.auth.updateUser({ data: { avatar_url: avatarUrl } });
+  applyAvatar(avatarUrl);
+  avatarUploadBtn.textContent = original;
+  showToast ? showToast('Profile photo updated') : null;
+});

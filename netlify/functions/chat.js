@@ -14,9 +14,9 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: 'Server is missing GEMINI_API_KEY' }) };
   }
 
-  let message, context;
+  let message, context, lang;
   try {
-    ({ message, context } = JSON.parse(event.body || '{}'));
+    ({ message, context, lang } = JSON.parse(event.body || '{}'));
   } catch {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid request body' }) };
   }
@@ -25,7 +25,9 @@ exports.handler = async (event) => {
   }
 
   const contextLine = context ? `\nContext — the user's most recent Leaf Aid scan: ${context}` : '';
-  const prompt = `${SYSTEM_PROMPT}${contextLine}\n\nUser: ${message}`;
+  const langName = { te: 'Telugu', hi: 'Hindi' }[lang];
+  const langLine = langName ? `\nAlways reply in ${langName} (use ${langName} script). Keep disease and crop names understandable.` : '';
+  const prompt = `${SYSTEM_PROMPT}${langLine}${contextLine}\n\nUser: ${message}`;
 
   try {
     const resp = await fetch(

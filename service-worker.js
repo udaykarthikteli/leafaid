@@ -3,7 +3,7 @@
 // Note: pages that need live data (dashboard scan history, chatbot) still
 // require a connection — this just makes the app itself load offline.
 
-const CACHE_NAME = 'leafaid-v1';
+const CACHE_NAME = 'leafaid-v2';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -14,6 +14,7 @@ const APP_SHELL = [
   '/assets/script.js',
   '/assets/dashboard.js',
   '/assets/auth.js',
+  '/assets/i18n.js',
   '/assets/supabase-config.js',
   '/assets/logo.svg',
   '/assets/leaf-base.svg',

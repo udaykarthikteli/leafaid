@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             message: userText,
+            lang: (() => { try { return localStorage.getItem('leafaid-lang') || 'en'; } catch (e) { return 'en'; } })(),
             context: lastDiagnosis
               ? `${lastDiagnosis.name} on ${lastDiagnosis.crop} at ${lastDiagnosis.confidence}% confidence, severity ${lastDiagnosis.severity}.`
               : null
@@ -252,31 +253,42 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('fileInput');
   const resultWrap = document.getElementById('resultWrap');
 
-  const diagnoses = [
-    { name: 'Early Blight', crop: 'Tomato', confidence: 96, severity: 'high',
-      reasons: ['Concentric dark rings detected on 3 lesion clusters', 'Yellow halo pattern matches early blight signature', 'Lesion density concentrated on lower canopy leaves'],
-      symptoms: 'Small brown spots with concentric rings, surrounded by a yellow halo, usually starting on older, lower leaves before moving upward.',
-      treatment: 'Remove and destroy infected leaves. Apply a copper-based or chlorothalonil fungicide every 7–10 days. Avoid overhead watering to keep foliage dry.',
-      prevention: 'Rotate crops on a 2–3 year cycle, mulch to prevent soil splash, stake plants for airflow, and choose resistant varieties where available.' },
-    { name: 'Powdery Mildew', crop: 'Cucumber', confidence: 91, severity: 'medium',
-      reasons: ['White powdery texture detected across upper leaf surface', 'Low lesion depth suggests surface-level fungal growth', 'Pattern consistent with mildew spread along veins'],
-      symptoms: 'White or gray powdery patches on leaf surfaces and stems, often starting on older leaves and spreading quickly in humid, low-light conditions.',
-      treatment: 'Apply sulfur or potassium bicarbonate-based fungicide. Prune affected foliage and increase spacing between plants for better airflow.',
-      prevention: 'Water in the morning at the base of plants, avoid excess nitrogen fertilizer, and prune dense growth to improve air circulation.' },
-    { name: 'Leaf Rust', crop: 'Wheat', confidence: 88, severity: 'medium',
-      reasons: ['Orange pustule clusters detected along leaf blade', 'Radial spread pattern typical of rust spores', 'Texture signature matches rust fungal structure'],
-      symptoms: 'Small orange-brown pustules scattered across the leaf blade, which rupture and release powdery spores that spread quickly by wind.',
-      treatment: 'Apply a triazole-based fungicide at first sign of pustules. Remove volunteer plants that can harbor spores between seasons.',
-      prevention: 'Plant rust-resistant cultivars, avoid dense planting, and monitor fields closely during warm, humid stretches of the season.' },
-    { name: 'Insect Feeding Damage', crop: 'Cabbage', confidence: 84, severity: 'low',
-      reasons: ['Irregular hole patterns with clean margins detected', 'Insect silhouette identified near leaf margin', 'Damage concentrated on younger leaf tissue'],
-      symptoms: 'Irregular holes and chewed margins on leaves, often with visible larvae, eggs, or adult insects nearby, most active in early morning or evening.',
-      treatment: 'Hand-pick visible pests, introduce beneficial insects like ladybugs, or apply an appropriate organic insecticide such as neem oil.',
-      prevention: 'Use row covers on young plants, rotate crops, and inspect the underside of leaves weekly for eggs or larvae.' }
-  ];
+  /* ---------- real diagnosis via /api/diagnose (Gemini vision) ---------- */
+  const escapeHtmlText = (str) => String(str).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  function renderResult(imgSrc) {
-    const pick = diagnoses[Math.floor(Math.random() * diagnoses.length)];
+  const uiLang = () => { try { return localStorage.getItem('leafaid-lang') || 'en'; } catch (e) { return 'en'; } };
+
+  // Shrink the photo before upload so it stays small and fast.
+  function resizeImage(file, maxSide = 1024, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read this image')); };
+      img.src = url;
+    });
+  }
+
+  const ICON_BUSY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
+  const ICON_IDLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>';
+
+  function setDropzoneBusy(busy) {
+    if (!dropzone) return;
+    dropzone.querySelector('h4').textContent = busy ? 'Analyzing leaf image…' : 'Drop a new leaf photo to re-scan';
+    dropzone.querySelector('.dz-icon').innerHTML = busy ? ICON_BUSY : ICON_IDLE;
+    dropzone.style.pointerEvents = busy ? 'none' : '';
+  }
+
+  function renderResult(imgSrc, pick) {
     resultWrap.querySelector('.preview-box img').src = imgSrc;
     resultWrap.querySelector('.disease-name').textContent = pick.name;
     resultWrap.querySelector('.crop-line').textContent = 'Detected on ' + pick.crop + ' leaf';
@@ -287,11 +299,12 @@ document.addEventListener('DOMContentLoaded', () => {
     sevTag.className = 'mini-tag severity-pill sev-' + pick.severity;
 
     const reasonList = resultWrap.querySelector('.reason-list');
-    reasonList.innerHTML = pick.reasons.map(r => `<div class="reason-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>${r}</span></div>`).join('');
+    reasonList.innerHTML = (pick.reasons || []).map(r => `<div class="reason-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>${escapeHtmlText(r)}</span></div>`).join('')
+      + '<p style="margin-top:10px;font-size:.78rem;color:var(--ink-500);">AI estimate — confirm with a local agronomist before treating.</p>';
 
-    resultWrap.querySelector('.tab-panel.symptoms').textContent = pick.symptoms;
-    resultWrap.querySelector('.tab-panel.treatment').textContent = pick.treatment;
-    resultWrap.querySelector('.tab-panel.prevention').textContent = pick.prevention;
+    resultWrap.querySelector('.tab-panel.symptoms').textContent = pick.symptoms || '—';
+    resultWrap.querySelector('.tab-panel.treatment').textContent = pick.treatment || '—';
+    resultWrap.querySelector('.tab-panel.prevention').textContent = pick.prevention || '—';
 
     window.__lastDiagnosis = { name: pick.name, crop: pick.crop, confidence: pick.confidence, severity: pick.severity };
 
@@ -304,19 +317,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
-  function handleFile(file) {
+  async function handleFile(file) {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      dropzone.querySelector('h4').textContent = 'Analyzing leaf image…';
-      dropzone.querySelector('.dz-icon').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
-      setTimeout(() => {
-        renderResult(e.target.result);
-        dropzone.querySelector('h4').textContent = 'Drop a new leaf photo to re-scan';
-        dropzone.querySelector('.dz-icon').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>';
-      }, 1400);
-    };
-    reader.readAsDataURL(file);
+    if (!file.type || !file.type.startsWith('image/')) { showToast('Please choose an image file'); return; }
+
+    setDropzoneBusy(true);
+    try {
+      const imgSrc = await resizeImage(file);
+      const res = await fetch('/api/diagnose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imgSrc, lang: uiLang() })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'Analysis failed');
+
+      if (!data.is_plant_leaf) {
+        showToast("This doesn't look like a plant leaf — try a clear, close-up photo of one leaf.");
+        return;
+      }
+      renderResult(imgSrc, data);
+    } catch (err) {
+      console.error('Diagnosis error:', err);
+      showToast('Could not analyze this photo — please try again.');
+    } finally {
+      setDropzoneBusy(false);
+      if (fileInput) fileInput.value = '';
+    }
   }
 
   if (dropzone && fileInput) {

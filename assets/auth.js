@@ -201,19 +201,37 @@ async function loadScans(userId) {
       : `<p style="color:var(--ink-500);font-size:.9rem;padding:20px 0;">No scans yet — run a diagnosis to see it here.</p>`;
   }
 
-  // Overview — recent scans (top 4) + live scan count
-  const recentPanel = document.querySelector('#page-overview .panel .history-item')?.closest('.panel');
+  // Overview — recent scans (top 4). Always replace the demo rows from the HTML.
+  const recentPanel = document.querySelector('#page-overview .panel .history-item')?.closest('.panel')
+    || document.querySelector('#page-overview .panel.recent-scans');
   if (recentPanel) {
-    const list = recentPanel.querySelectorAll('.history-item');
+    recentPanel.querySelectorAll('.history-item, .empty-scans').forEach(el => el.remove());
     const recent = data.slice(0, 4);
-    if (recent.length) {
-      recentPanel.querySelectorAll('.history-item').forEach(el => el.remove());
-      recentPanel.insertAdjacentHTML('beforeend', recent.map(rowHtml).join(''));
-    }
+    recentPanel.insertAdjacentHTML('beforeend', recent.length
+      ? recent.map(rowHtml).join('')
+      : `<p class="empty-scans" style="color:var(--ink-500);font-size:.9rem;padding:20px 0;">No scans yet — run a diagnosis to see it here.</p>`);
   }
 
-  const scanCountEl = document.querySelector('.stat-card h3');
-  if (scanCountEl) scanCountEl.textContent = data.length;
+  // Overview — stat cards computed from THIS user's scans only
+  const now = new Date();
+  const thisMonth = data.filter(s => {
+    const d = new Date(s.created_at);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const highCount = data.filter(s => s.severity === 'high').length;
+  const avgConf = data.length
+    ? (data.reduce((sum, s) => sum + (Number(s.confidence) || 0), 0) / data.length).toFixed(1) + '%'
+    : '—';
+  const cropCount = new Set(data.map(s => s.crop).filter(Boolean)).size;
+
+  const statValues = [thisMonth.length, highCount, avgConf, cropCount];
+  document.querySelectorAll('#page-overview .stat-card').forEach((card, i) => {
+    if (i > 3) return;
+    const h3 = card.querySelector('h3');
+    if (h3) h3.textContent = statValues[i];
+    const trend = card.querySelector('.trend');
+    if (trend) trend.remove(); // the +18% / -6% badges were placeholders
+  });
 }
 
 /* ---------------------------------------------------------------

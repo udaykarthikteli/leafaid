@@ -3,7 +3,7 @@
 // Note: pages that need live data (dashboard scan history, chatbot) still
 // require a connection — this just makes the app itself load offline.
 
-const CACHE_NAME = 'leafaid-v2';
+const CACHE_NAME = 'leafaid-v3';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -43,22 +43,25 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Never cache API calls (Supabase, Netlify functions) — those must always be live.
-  if (event.request.url.includes('supabase.co') || event.request.url.includes('/.netlify/functions/')) {
+  const url = event.request.url;
+
+  // Never touch API calls (Supabase, chat) — those must always be live.
+  if (url.includes('supabase.co') || url.includes('/api/') || url.includes('/.netlify/functions/')) {
     return;
   }
   if (event.request.method !== 'GET') return;
 
+  // Network-first: always try for the freshest page/script, and fall back
+  // to the cache only when offline. This stops stale HTML/JS from sticking.
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.ok && response.type === 'basic') {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
-          return response;
-        })
-        .catch(() => cached);
-    })
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

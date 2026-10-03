@@ -70,6 +70,13 @@ if (signupForm) {
   });
 }
 
+/* Already logged in? Skip the login / signup pages. */
+if (loginForm || signupForm) {
+  supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.replace('dashboard.html');
+  }).catch(() => {});
+}
+
 /* ---------------------------------------------------------------
    DASHBOARD: auth guard + user info + logout + scan history
 --------------------------------------------------------------- */
@@ -77,12 +84,26 @@ const isDashboard = document.body.contains(document.querySelector('.app-shell'))
 
 if (isDashboard) {
   (async function initDashboard() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    let session = null;
+    try {
+      ({ data: { session } } = await supabaseClient.auth.getSession());
+    } catch (e) {
+      session = null;
+    }
 
+    // Not logged in -> straight to the login page (never show the dashboard).
     if (!session) {
-      window.location.href = 'login.html';
+      window.location.replace('login.html');
       return;
     }
+
+    // Logged in -> reveal the page.
+    document.documentElement.classList.remove('auth-checking');
+
+    // If the session ends (logout in another tab, expiry), leave the dashboard.
+    supabaseClient.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') window.location.replace('login.html');
+    });
 
     const user = session.user;
     const displayName = user.user_metadata?.first_name

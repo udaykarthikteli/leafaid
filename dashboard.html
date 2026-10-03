@@ -7,6 +7,13 @@
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/style.css?v=3">
 <script>(function(){try{if(localStorage.getItem('leafaid-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
+<style>html.auth-checking body{visibility:hidden}</style>
+<script>
+  // Keep the dashboard hidden until auth.js confirms a logged-in session.
+  document.documentElement.classList.add('auth-checking');
+  // Failsafe: if the check can't finish, send the visitor to login instead of showing a blank page.
+  setTimeout(function(){ if (document.documentElement.classList.contains('auth-checking')) location.replace('login.html'); }, 6000);
+</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0B3D2E">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">

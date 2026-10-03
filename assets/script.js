@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const open = navLinks.classList.toggle('mobile-open');
       navToggle.setAttribute('aria-expanded', open);
       navLinks.style.cssText = open
-        ? 'display:flex;flex-direction:column;position:absolute;top:74px;left:16px;right:16px;background:rgba(6,20,15,.96);border-radius:20px;padding:10px;gap:4px;border:1px solid rgba(255,255,255,.12)'
+        ? 'display:flex;flex-direction:column;position:absolute;top:74px;left:16px;right:16px;background:rgba(6,20,15,.96);border-radius:20px;padding:10px;gap:4px;border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 30px rgba(0,0,0,.25);'
         : '';
     });
   }
@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
       body.appendChild(div);
       body.scrollTop = body.scrollHeight;
     }
+
     async function botRespond(userText) {
       const typing = document.createElement('div');
       typing.className = 'chat-typing';
@@ -189,10 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
       body.appendChild(typing);
       body.scrollTop = body.scrollHeight;
 
-      let reply;
+      let reply = "I'm having trouble connecting right now — please try again in a moment.";
+
       try {
         const lastDiagnosis = window.__lastDiagnosis || null;
-        const res = await fetch('/.netlify/functions/chat', {
+        const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -202,15 +204,22 @@ document.addEventListener('DOMContentLoaded', () => {
               : null
           })
         });
+
         const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.error || 'Chat API failed');
+        }
+
         reply = data.reply || "Sorry, I couldn't reach the assistant just now.";
       } catch (err) {
+        console.error('Chat API error:', err);
         reply = "I'm having trouble connecting right now — please try again in a moment.";
       }
 
       typing.remove();
       addMsg(reply, 'bot');
     }
+
     function send() {
       const val = input.value.trim();
       if (!val) return;
@@ -218,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
       input.value = '';
       botRespond(val);
     }
+
     sendBtn?.addEventListener('click', send);
     input?.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
     panel.querySelectorAll('.msg-suggestions button').forEach(b => {

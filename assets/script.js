@@ -527,7 +527,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const sidebar = document.querySelector('.app-sidebar');
   const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
   if (sidebar && sidebarToggle) {
-    sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    // Dim backdrop behind the open menu on phones; it always follows the sidebar's "open" class.
+    const backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    new MutationObserver(() => backdrop.classList.toggle('show', sidebar.classList.contains('open')))
+      .observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+    backdrop.addEventListener('click', () => sidebar.classList.remove('open'));
+
+    // The ONE handler for the menu button. stopImmediatePropagation keeps any other
+    // script from toggling it a second time, and stops the click reaching .app-main
+    // (which would close the menu again straight away).
+    sidebarToggle.addEventListener('click', (e) => {
+      e.stopImmediatePropagation();
+      sidebar.classList.toggle('open');
+    });
     document.querySelectorAll('.app-main').forEach(m => m.addEventListener('click', () => sidebar.classList.remove('open')));
   }
 

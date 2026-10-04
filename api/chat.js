@@ -66,9 +66,10 @@ export default async function handler(req, res) {
     ? `\nContext — the user's most recent Leaf Aid scan: ${context}`
     : '';
   const langName = { te: 'Telugu', hi: 'Hindi' }[lang];
-  const langLine = langName
-    ? `\nAlways reply in ${langName} (use ${langName} script). Keep disease and crop names understandable.`
-    : '';
+  const langLine =
+    `\nReply in the same language and script the user wrote their message in (for example English, Telugu, Hindi or Tamil).` +
+    (langName ? ` If the language is unclear, use ${langName}.` : '') +
+    ` Use plain text only: no markdown, asterisks, bullet symbols or emojis, because replies may be read aloud.`;
   const prompt = `${SYSTEM_PROMPT}${langLine}${contextLine}\n\nUser: ${message}`;
 
   let lastStatus = 503;

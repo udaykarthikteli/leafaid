@@ -154,12 +154,18 @@ document.addEventListener('click', async (e) => {
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saving…';
 
-    const { error } = await supabaseClient.from('scans').update({ notes }).eq('id', scanId);
+    // .select('id') returns the rows that were really updated. If a Supabase
+    // security rule blocks the update, it comes back empty instead of raising an error.
+    const { data: updated, error } = await supabaseClient
+      .from('scans').update({ notes }).eq('id', scanId).select('id');
 
-    if (error) {
+    if (error || !updated || updated.length === 0) {
+      console.error('Note was not saved:', error || 'no rows updated (blocked by a Supabase policy?)');
       saveBtn.disabled = false;
       saveBtn.textContent = original;
-      authError('Could not save note — try again.');
+      authError(error
+        ? 'Could not save note: ' + error.message
+        : "Note was NOT saved — Supabase blocked the update. Add the 'update' policy on the scans table.");
       return;
     }
 

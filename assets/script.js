@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
       div.textContent = text;
       body.appendChild(div);
       body.scrollTop = body.scrollHeight;
+      return div;
     }
 
     async function botRespond(userText) {
@@ -191,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
       body.scrollTop = body.scrollHeight;
 
       let reply = "I'm having trouble connecting right now — please try again in a moment.";
+      let ok = false;
 
       try {
         const lastDiagnosis = window.__lastDiagnosis || null;
@@ -212,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         reply = data.reply || "Sorry, I couldn't reach the assistant just now.";
+        ok = !!data.reply;
       } catch (err) {
         console.error('Chat API error:', err);
         reply = "I'm having trouble connecting right now — please try again in a moment.";
@@ -219,14 +222,296 @@ document.addEventListener('DOMContentLoaded', () => {
 
       typing.remove();
       addMsg(reply, 'bot');
+      if (ok) speak(reply);
     }
 
     function send() {
       const val = input.value.trim();
       if (!val) return;
+      stopSpeaking();
       addMsg(val, 'user');
       input.value = '';
       botRespond(val);
+    }
+
+    /* =========================================================
+       VOICE: mic input (language auto-detected by Gemini) + spoken replies
+       ========================================================= */
+    const diagContext = () => {
+      const d = window.__lastDiagnosis;
+      return d ? `${d.name} on ${d.crop} at ${d.confidence}% confidence, severity ${d.severity}.` : null;
+    };
+    const uiLangCode = () => { try { return localStorage.getItem('leafaid-lang') || 'en'; } catch (e) { return 'en'; } };
+
+    const voiceStyle = document.createElement('style');
+    voiceStyle.textContent = `
+      .chat-input .mic-btn{background:var(--amber-400,#F0B429);}
+      .chat-input .mic-btn.rec{background:#d93025;animation:micpulse 1.2s infinite;}
+      .chat-input .mic-btn:disabled{opacity:.5;}
+      @keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(217,48,37,.5);}100%{box-shadow:0 0 0 12px rgba(217,48,37,0);}}
+      .chat-head .head-actions{display:flex;align-items:center;gap:8px;}
+      .chat-speak{background:rgba(255,255,255,.12);border:none;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+      .chat-speak svg{width:16px;height:16px;color:#fff;}
+      .chat-speak.off{opacity:.6;}
+    `;
+    document.head.appendChild(voiceStyle);
+
+    const SVG_ATTR = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+    const ICON_MIC = `<svg ${SVG_ATTR}><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>`;
+    const ICON_STOP = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+    const ICON_SPK_ON = `<svg ${SVG_ATTR}><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>`;
+    const ICON_SPK_OFF = `<svg ${SVG_ATTR}><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6M16 9l6 6"/></svg>`;
+
+    /* ---------- speaker (text-to-speech) ---------- */
+    const synth = window.speechSynthesis || null;
+    let voices = [];
+    const loadVoices = () => { voices = synth ? synth.getVoices() : []; };
+    if (synth) { loadVoices(); if (synth.addEventListener) synth.addEventListener('voiceschanged', loadVoices); }
+
+    let speakerOn = true;
+    try { speakerOn = localStorage.getItem('leafaid-voice-reply') !== 'off'; } catch (e) {}
+
+    const LANG_NAMES = { te: 'Telugu', hi: 'Hindi', ta: 'Tamil', kn: 'Kannada', ml: 'Malayalam', bn: 'Bengali', gu: 'Gujarati', pa: 'Punjabi', or: 'Odia', en: 'English' };
+    const SCRIPT_LANGS = [
+      [/[\u0C00-\u0C7F]/, 'te-IN'], [/[\u0900-\u097F]/, 'hi-IN'], [/[\u0B80-\u0BFF]/, 'ta-IN'],
+      [/[\u0C80-\u0CFF]/, 'kn-IN'], [/[\u0D00-\u0D7F]/, 'ml-IN'], [/[\u0980-\u09FF]/, 'bn-IN'],
+      [/[\u0A80-\u0AFF]/, 'gu-IN'], [/[\u0A00-\u0A7F]/, 'pa-IN'], [/[\u0B00-\u0B7F]/, 'or-IN']
+    ];
+    const detectScriptLang = (text) => {
+      for (const [re, code] of SCRIPT_LANGS) if (re.test(text)) return code;
+      return null;
+    };
+    const warnedLangs = new Set();
+
+    function pickVoice(code) {
+      const want = code.toLowerCase().replace('_', '-');
+      const base = want.split('-')[0];
+      const list = voices.length ? voices : (synth ? synth.getVoices() : []);
+      const norm = (v) => v.lang.toLowerCase().replace('_', '-');
+      return list.find(v => norm(v) === want) || list.find(v => norm(v).split('-')[0] === base) || null;
+    }
+
+    function stopSpeaking() { if (synth) synth.cancel(); }
+
+    function speak(text, langHint) {
+      if (!synth || !speakerOn || !text) return;
+      const clean = String(text)
+        .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+        .replace(/[*_`#>]/g, '')
+        .trim();
+      if (!clean) return;
+
+      const code = detectScriptLang(clean) || langHint || 'en-IN';
+      const base = code.toLowerCase().split('-')[0];
+      const voice = pickVoice(code);
+      if (!voice && base !== 'en' && !warnedLangs.has(base)) {
+        warnedLangs.add(base);
+        showToast('No ' + (LANG_NAMES[base] || code) + ' voice found on this device — install one in your system settings to hear replies.');
+      }
+
+      synth.cancel();
+      // Read sentence by sentence (long single utterances get cut off in some browsers).
+      const parts = clean.match(/[^.!?।]+[.!?।]*/g) || [clean];
+      parts.forEach((part) => {
+        const t = part.trim();
+        if (!t) return;
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = code;
+        if (voice) u.voice = voice;
+        u.rate = 0.95;
+        synth.speak(u);
+      });
+    }
+
+    const closeBtn = panel.querySelector('.chat-close');
+    let speakBtn = null;
+    if (closeBtn && synth) {
+      speakBtn = document.createElement('button');
+      speakBtn.type = 'button';
+      speakBtn.className = 'chat-speak';
+      const paintSpeaker = () => {
+        speakBtn.innerHTML = speakerOn ? ICON_SPK_ON : ICON_SPK_OFF;
+        speakBtn.classList.toggle('off', !speakerOn);
+        speakBtn.setAttribute('aria-label', speakerOn ? 'Mute spoken replies' : 'Turn on spoken replies');
+        speakBtn.title = speakerOn ? 'Spoken replies: on' : 'Spoken replies: off';
+      };
+      paintSpeaker();
+      speakBtn.addEventListener('click', () => {
+        speakerOn = !speakerOn;
+        try { localStorage.setItem('leafaid-voice-reply', speakerOn ? 'on' : 'off'); } catch (e) {}
+        if (!speakerOn) stopSpeaking();
+        paintSpeaker();
+      });
+      const actions = document.createElement('div');
+      actions.className = 'head-actions';
+      closeBtn.replaceWith(actions);
+      actions.append(speakBtn, closeBtn);
+    }
+
+    /* ---------- mic (speech input) ---------- */
+    function decodeAudio(arrayBuf) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AC();
+      return new Promise((resolve, reject) => {
+        ctx.decodeAudioData(arrayBuf,
+          (d) => { ctx.close(); resolve(d); },
+          (e) => { ctx.close(); reject(e || new Error('decode failed')); });
+      });
+    }
+
+    function encodeWav(pcm, rate) {
+      const buf = new ArrayBuffer(44 + pcm.length * 2);
+      const v = new DataView(buf);
+      const w = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+      w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+      v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+      v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+      w(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+      let o = 44;
+      for (let i = 0; i < pcm.length; i++, o += 2) {
+        const x = Math.max(-1, Math.min(1, pcm[i]));
+        v.setInt16(o, x < 0 ? x * 0x8000 : x * 0x7FFF, true);
+      }
+      return buf;
+    }
+
+    // Recording (webm/mp4) -> 16 kHz mono WAV, base64. Keeps uploads small and the format universal.
+    async function blobToWavBase64(blob) {
+      const decoded = await decodeAudio(await blob.arrayBuffer());
+      const rate = 16000;
+      const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      const off = new OAC(1, Math.max(1, Math.ceil(decoded.duration * rate)), rate);
+      const src = off.createBufferSource();
+      src.buffer = decoded;
+      src.connect(off.destination);
+      src.start();
+      const rendered = await off.startRendering();
+      const wav = new Blob([encodeWav(rendered.getChannelData(0), rate)], { type: 'audio/wav' });
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(String(fr.result).split(',')[1]);
+        fr.onerror = () => reject(fr.error);
+        fr.readAsDataURL(wav);
+      });
+    }
+
+    async function voiceRespond(wavB64, bubble) {
+      const typing = document.createElement('div');
+      typing.className = 'chat-typing';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      body.appendChild(typing);
+      body.scrollTop = body.scrollHeight;
+
+      try {
+        const res = await fetch('/api/voice-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ audio: wavB64, lang: uiLangCode(), context: diagContext() })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.error || 'Voice chat failed');
+
+        typing.remove();
+        if (!data.transcript || !data.reply) {
+          bubble.remove();
+          showToast("I couldn't catch that — please try again and speak clearly.");
+          return;
+        }
+        bubble.textContent = data.transcript;
+        addMsg(data.reply, 'bot');
+        speak(data.reply, data.lang);
+      } catch (err) {
+        console.error('Voice chat error:', err);
+        typing.remove();
+        bubble.remove();
+        addMsg("I'm having trouble connecting right now — please try again in a moment.", 'bot');
+      }
+    }
+
+    let micBtn = null;
+    if (sendBtn) {
+      micBtn = document.createElement('button');
+      micBtn.type = 'button';
+      micBtn.className = 'mic-btn';
+      micBtn.setAttribute('aria-label', 'Speak your question');
+      micBtn.title = 'Tap to speak, tap again to send';
+      micBtn.innerHTML = ICON_MIC;
+      sendBtn.before(micBtn);
+
+      let recorder = null, stream = null, chunks = [], recTimer = null, recording = false, discard = false;
+
+      const setRecUi = (on) => {
+        micBtn.classList.toggle('rec', on);
+        micBtn.innerHTML = on ? ICON_STOP : ICON_MIC;
+        micBtn.setAttribute('aria-label', on ? 'Stop and send' : 'Speak your question');
+        if (input) {
+          if (on) { micBtn._ph = input.placeholder; input.placeholder = 'Listening… tap the mic again to send'; }
+          else if (micBtn._ph) { input.placeholder = micBtn._ph; }
+        }
+      };
+
+      const releaseStream = () => { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } };
+
+      async function onRecordingDone() {
+        releaseStream();
+        const blob = new Blob(chunks, { type: (recorder && recorder.mimeType) || 'audio/webm' });
+        chunks = [];
+        if (discard) { discard = false; return; }
+        if (blob.size < 1500) { showToast("I didn't hear anything — hold the phone closer and try again."); return; }
+
+        micBtn.disabled = true;
+        const bubble = addMsg('🎤 …', 'user');
+        try {
+          const wavB64 = await blobToWavBase64(blob);
+          await voiceRespond(wavB64, bubble);
+        } catch (err) {
+          console.error('Audio processing error:', err);
+          bubble.remove();
+          showToast("Couldn't process that recording — please try again.");
+        } finally {
+          micBtn.disabled = false;
+        }
+      }
+
+      function stopRec(cancel) {
+        clearTimeout(recTimer);
+        if (cancel) discard = true;
+        recording = false;
+        setRecUi(false);
+        if (recorder && recorder.state !== 'inactive') recorder.stop();
+        else releaseStream();
+      }
+
+      async function startRec() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+          showToast('Voice input is not supported in this browser.');
+          return;
+        }
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (e) {
+          showToast('Microphone access was blocked — allow it in your browser settings to use voice.');
+          return;
+        }
+        stopSpeaking();
+        chunks = [];
+        discard = false;
+        recorder = new MediaRecorder(stream);
+        recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+        recorder.onstop = onRecordingDone;
+        recorder.start();
+        recording = true;
+        setRecUi(true);
+        recTimer = setTimeout(() => stopRec(false), 30000); // 30 s max
+      }
+
+      micBtn.addEventListener('click', () => { recording ? stopRec(false) : startRec(); });
+
+      // Closing the chat cancels any recording and silences the voice.
+      panel.querySelector('.chat-close')?.addEventListener('click', () => {
+        stopSpeaking();
+        if (recording) stopRec(true);
+      });
     }
 
     sendBtn?.addEventListener('click', send);

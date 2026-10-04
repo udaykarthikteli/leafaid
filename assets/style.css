@@ -831,3 +831,59 @@ label{display:block;font-size:.8rem;font-weight:700;margin-bottom:8px;color:var(
 .feedback-btn:hover{background:var(--mist-200);}
 .feedback-btn.active.up{background:rgba(47,143,99,.15);border-color:var(--canopy-500);color:var(--canopy-600);}
 .feedback-btn.active.down{background:rgba(225,97,63,.15);border-color:var(--coral-500);color:var(--coral-500);}
+
+/* ============================================================
+   MOBILE FIXES
+   ============================================================ */
+.app-main{min-width:0;}
+.nav-mobile-only{display:none !important;}
+.dz-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+#cameraBtn{display:none;}
+@media (hover:none) and (pointer:coarse){ #cameraBtn{display:inline-flex;} }
+
+@media (max-width:980px){
+  /* minmax(0,1fr) lets the main column shrink instead of being stretched by wide content */
+  .app-shell{grid-template-columns:minmax(0,1fr);}
+}
+
+@media (max-width:760px){
+  /* landing-page header: fit logo, language, theme, sign-up and menu on one line */
+  .site-nav{padding:12px 0;}
+  .site-nav .nav-inner{padding:0 12px;}
+  .nav-shell{flex:1;min-width:0;padding:8px 8px 8px 14px;gap:8px;}
+  .brand{font-size:1rem;gap:.5rem;}
+  .brand .logo-mark{width:32px;height:32px;}
+  .brand small{display:none;}
+  .nav-cta{gap:.35rem;margin-left:auto;}
+  .nav-cta .btn-ghost{display:none;}
+  .nav-cta select{max-width:84px;padding:5px 8px !important;font-size:.72rem !important;}
+  .nav-cta .btn-sm{padding:.5rem .85rem;font-size:.8rem;}
+  .nav-links.mobile-open .nav-mobile-only{display:block !important;}
+
+  /* dashboard */
+  .app-main{padding:16px 14px 50px;}
+  .app-topbar{gap:8px;margin-bottom:18px;}
+  .app-topbar .search-box{min-width:0;padding-left:12px;padding-right:12px;}
+  .topbar-actions{gap:8px;}
+  .topbar-actions select{max-width:84px;padding:5px 8px !important;font-size:.72rem !important;}
+  .icon-btn{width:40px;height:40px;}
+  .page-head h1{font-size:1.5rem;}
+  .panel{padding-left:16px;padding-right:16px;}
+  .dropzone{padding:28px 16px;}
+}
+
+@media (max-width:400px){
+  .nav-cta .theme-toggle-btn{display:none;}            /* keeps the header on one line on small phones */
+  .cta-banner > *{min-width:0;}
+  .cta-actions{flex-wrap:wrap;justify-content:center;}
+}
+
+@media (max-width:520px){
+  .topbar-actions .icon-btn:has(.dot){display:none;}   /* decorative bell */
+  .app-topbar .search-box input{min-width:0;}
+}
+
+@media (max-width:340px){
+  .nav-cta select{max-width:66px;}
+  .brand{font-size:.92rem;}
+}

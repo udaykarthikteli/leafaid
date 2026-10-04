@@ -32,11 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (hash && document.getElementById('page-' + hash)) goTo(hash);
 
   /* ---------- mobile sidebar toggle ---------- */
-  const mobileToggle = document.getElementById('mobileToggle');
-  mobileToggle?.addEventListener('click', () => sidebar.classList.toggle('open'));
+  // The menu button (#mobileToggle) is handled in script.js — a second handler here
+  // toggled the sidebar twice, so it never opened.
 
   /* ---------- open chat from sidebar / diagnose panel ---------- */
   function openChat() {
+    sidebar?.classList.remove('open');   // close the phone menu behind the chat
     document.querySelector('.chat-panel')?.classList.add('open');
     const launcher = document.querySelector('.chat-launcher');
     if (launcher) launcher.style.display = 'none';

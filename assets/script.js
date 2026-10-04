@@ -628,12 +628,22 @@ document.addEventListener('DOMContentLoaded', () => {
     } finally {
       setDropzoneBusy(false);
       if (fileInput) fileInput.value = '';
+      const camInput = document.getElementById('cameraInput');
+      if (camInput) camInput.value = '';
     }
   }
 
   if (dropzone && fileInput) {
     dropzone.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+
+    // "Take photo" (phones): open the camera directly instead of the gallery.
+    const cameraBtn = document.getElementById('cameraBtn');
+    const cameraInput = document.getElementById('cameraInput');
+    if (cameraBtn && cameraInput) {
+      cameraBtn.addEventListener('click', (e) => { e.stopPropagation(); cameraInput.click(); });
+      cameraInput.addEventListener('change', () => handleFile(cameraInput.files[0]));
+    }
     ['dragenter', 'dragover'].forEach(evt => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.add('drag'); }));
     ['dragleave', 'drop'].forEach(evt => dropzone.addEventListener(evt, (e) => { e.preventDefault(); dropzone.classList.remove('drag'); }));
     dropzone.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]));

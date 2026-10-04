@@ -169,6 +169,18 @@ document.addEventListener('click', async (e) => {
   }
 });
 
+/* Notes page: live search, and the empty-state shortcut to Scan history. */
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.id === 'notesSearch' && window.__renderNotes) window.__renderNotes();
+});
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('[data-open-history]');
+  if (link) {
+    e.preventDefault();
+    document.querySelector('.side-link[data-page="history"]')?.click();
+  }
+});
+
 /* ---------------------------------------------------------------
    Fetch this user's scans and render into Recent scans + History
 --------------------------------------------------------------- */
@@ -220,6 +232,27 @@ async function loadScans(userId) {
     historyPanel.innerHTML = data.length
       ? data.map(rowHtml).join('')
       : `<p style="color:var(--ink-500);font-size:.9rem;padding:20px 0;">No scans yet — run a diagnosis to see it here.</p>`;
+  }
+
+  // Notes page — every scan that has a saved note, with live search
+  const notesPanel = document.getElementById('notesList');
+  if (notesPanel) {
+    const withNotes = data.filter(s => (s.notes || '').trim());
+    window.__renderNotes = () => {
+      const q = (document.getElementById('notesSearch')?.value || '').trim().toLowerCase();
+      const list = q
+        ? withNotes.filter(s => [s.notes, s.disease_name, s.crop].join(' ').toLowerCase().includes(q))
+        : withNotes;
+      const msg = 'color:var(--ink-500);font-size:.9rem;padding:20px 0;';
+      if (list.length) {
+        notesPanel.innerHTML = list.map(rowHtml).join('');
+      } else if (withNotes.length) {
+        notesPanel.innerHTML = `<p style="${msg}">No notes match “${escapeHtml(q)}”.</p>`;
+      } else {
+        notesPanel.innerHTML = `<p style="${msg}">No notes yet. Open <a href="#history" data-open-history style="color:var(--canopy-600);font-weight:700;">Scan history</a> and tap “+ Add note” on any scan.</p>`;
+      }
+    };
+    window.__renderNotes();
   }
 
   // Overview — recent scans (top 4). Always replace the demo rows from the HTML.

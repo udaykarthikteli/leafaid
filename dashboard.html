@@ -43,6 +43,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg>
         Scan history
       </a>
+      <a class="side-link" data-page="notes" href="#notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
+        My notes
+      </a>
       <a class="side-link" data-page="library" href="#library">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         Disease library
@@ -257,6 +261,16 @@
         <div class="history-item"><div class="history-thumb"><img src="assets/thumb-mildew.svg" alt=""></div><div class="h-body"><strong>Downy Mildew — Cucumber, Field 2</strong><span>1 week ago · 89% confidence</span></div><span class="status-dot high"></span></div>
         <div class="history-item"><div class="history-thumb"><img src="assets/thumb-insect.svg" alt=""></div><div class="h-body"><strong>Healthy leaf — Cabbage, Field 4</strong><span>1 week ago · 99% confidence</span></div><span class="status-dot low"></span></div>
       </div>
+    </section>
+
+    <!-- ========== NOTES ========== -->
+    <section class="page" id="page-notes">
+      <div class="page-head"><div><h1>My notes</h1><p>Every note you've saved on your scans, in one place.</p></div></div>
+      <div class="search-box" style="max-width:420px;margin-bottom:18px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="notesSearch" placeholder="Search your notes…" autocomplete="off">
+      </div>
+      <div class="panel" id="notesList"><p style="color:var(--ink-500);font-size:.9rem;padding:20px 0;">Loading your notes…</p></div>
     </section>
 
     <!-- ========== LIBRARY ========== -->

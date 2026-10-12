@@ -91,7 +91,7 @@
     <!-- ========== OVERVIEW ========== -->
     <section class="page active" id="page-overview">
       <div class="page-head">
-        <div><h1>Welcome back, Amara 🌿</h1><p>Here's what's happening across your fields this week.</p></div>
+        <div><h1>Welcome back 🌿</h1><p>Here's what's happening across your fields this week.</p></div>
         <a href="#diagnose" class="btn btn-primary btn-sm" data-goto="diagnose">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
           New diagnosis
@@ -357,13 +357,13 @@
   </div>
 </div>
         <div class="form-row two">
-          <div><label>First name</label><div class="input-wrap" style="padding-left:0;"><input style="padding-left:1rem;" type="text" value="Amara"></div></div>
-          <div><label>Last name</label><div class="input-wrap"><input style="padding-left:1rem;" type="text" value="Diallo"></div></div>
+          <div><label for="setFirst">First name</label><div class="input-wrap" style="padding-left:0;"><input id="setFirst" style="padding-left:1rem;" type="text" autocomplete="given-name"></div></div>
+          <div><label for="setLast">Last name</label><div class="input-wrap"><input id="setLast" style="padding-left:1rem;" type="text" autocomplete="family-name"></div></div>
         </div>
-        <div class="form-row"><label>Email</label><div class="input-wrap"><input style="padding-left:1rem;" type="email" value="amara@farmmail.com"></div></div>
-        <div class="form-row"><label>Primary crop</label><div class="input-wrap"><select style="padding-left:1rem;"><option>Tomato</option><option>Cucumber</option><option>Wheat</option><option>Cabbage</option></select></div></div>
-        <label class="check-row" style="margin-bottom:20px;"><input type="checkbox" checked> Email me weekly field summaries</label>
-        <button class="btn btn-primary" type="button" onclick="showToast('Settings saved')">Save changes</button>
+        <div class="form-row"><label for="setEmail">Email</label><div class="input-wrap"><input id="setEmail" style="padding-left:1rem;" type="email" readonly></div></div>
+        <div class="form-row"><label for="setCrop">Primary crop</label><div class="input-wrap"><select id="setCrop" style="padding-left:1rem;"><option>Tomato</option><option>Cucumber</option><option>Wheat</option><option>Cabbage</option></select></div></div>
+        <label class="check-row" style="margin-bottom:20px;"><input id="setWeekly" type="checkbox" checked> Email me weekly field summaries</label>
+        <button class="btn btn-primary" type="button" id="saveSettingsBtn">Save changes</button>
       </div>
     </section>
   </main>
@@ -383,7 +383,7 @@
     <button class="chat-close" aria-label="Close chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="chat-body">
-    <div class="msg bot">Hi Amara 👋 Want me to walk through your last scan, or answer a general question?</div>
+    <div class="msg bot">Hi 👋 Want me to walk through your last scan, or answer a general question?</div>
     <div class="msg-suggestions">
       <button>Explain my last diagnosis</button>
       <button>Treatment for early blight</button>

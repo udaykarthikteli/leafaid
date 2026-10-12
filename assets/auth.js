@@ -116,6 +116,36 @@ if (isDashboard) {
       if (el.textContent.includes('Welcome back')) el.textContent = `Welcome back, ${displayName.split(' ')[0]} 🌿`;
     });
 
+    // Settings form: fill with the real account details, and save edits back to Supabase
+    const meta = user.user_metadata || {};
+    const setFirst = document.getElementById('setFirst'), setLast = document.getElementById('setLast');
+    const setEmail = document.getElementById('setEmail'), setCrop = document.getElementById('setCrop');
+    const setWeekly = document.getElementById('setWeekly'), saveBtn = document.getElementById('saveSettingsBtn');
+    if (setFirst) {
+      setFirst.value = meta.first_name || '';
+      setLast.value = meta.last_name || '';
+      setEmail.value = user.email || '';
+      if (meta.primary_crop) setCrop.value = meta.primary_crop;
+      setWeekly.checked = meta.weekly_summary !== false;
+
+      saveBtn.addEventListener('click', async () => {
+        const original = saveBtn.textContent;
+        saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+        const first = setFirst.value.trim(), last = setLast.value.trim();
+        const { error } = await supabaseClient.auth.updateUser({
+          data: { first_name: first, last_name: last, primary_crop: setCrop.value, weekly_summary: setWeekly.checked }
+        });
+        saveBtn.disabled = false; saveBtn.textContent = original;
+        if (error) { authError('Could not save settings — try again.'); return; }
+        const name = `${first} ${last}`.trim() || user.email.split('@')[0];
+        document.querySelectorAll('.side-user strong').forEach(el => el.textContent = name);
+        document.querySelectorAll('.page-head h1').forEach(el => {
+          if (el.textContent.includes('Welcome back')) el.textContent = `Welcome back, ${name.split(' ')[0]} 🌿`;
+        });
+        showToast('Settings saved');
+      });
+    }
+
     // logout
     const logoutBtn = document.querySelector('.icon-btn[aria-label="Log out"]');
     if (logoutBtn) {

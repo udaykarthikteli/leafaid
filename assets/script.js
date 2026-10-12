@@ -612,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('Diagnosis complete — ' + pick.name);
 
     document.dispatchEvent(new CustomEvent('leafaid:diagnosis', {
-      detail: { name: pick.name, crop: pick.crop, confidence: pick.confidence, severity: pick.severity, imgSrc }
+      detail: { name: pick.name, crop: pick.crop, confidence: pick.confidence, severity: pick.severity, imgSrc, lesions: pick.lesions || [], healthy: !!pick.healthy }
     }));
   }
 

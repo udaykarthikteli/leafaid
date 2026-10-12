@@ -23,12 +23,17 @@ Look at the photo and decide what it shows. Reply with ONLY a JSON object (no ma
   "reasons": [string, string, string],    // 3 short visual observations from THIS photo that support your answer
   "symptoms": string,         // 1-2 sentences: typical symptoms of this condition
   "treatment": string,        // 1-3 sentences: practical treatment steps (or "No treatment needed" if healthy)
-  "prevention": string        // 1-2 sentences: prevention tips
+  "prevention": string,       // 1-2 sentences: prevention tips
+  "lesions": [                // up to 6 clearly visible diseased/damaged areas, [] if healthy
+    { "label": string,        // English, max 5 words, e.g. "Dark ringed spot"
+      "box_2d": [ymin, xmin, ymax, xmax] }  // integers, normalised 0-1000 relative to the image
+  ]
 }
 
 Rules:
 - Base your answer only on what is visible. Do not invent details. If unsure, lower the confidence.
 - Never claim certainty; this is an AI estimate.
+- Only box areas that are clearly visible in the photo; never guess locations.
 - If the image is not a plant leaf, set is_plant_leaf=false, healthy=false, disease_name="", reasons=[], and leave the text fields as empty strings.`;
 
 async function callGemini(model, apiKey, mimeType, base64, langLine) {
@@ -125,6 +130,15 @@ export default async function handler(req, res) {
         if (!Number.isFinite(confidence)) confidence = 60;
         confidence = Math.max(1, Math.min(99, confidence));
 
+        const lesions = healthy ? [] : (Array.isArray(raw.lesions) ? raw.lesions : []).slice(0, 6).map((l) => {
+          const b = Array.isArray(l?.box_2d) ? l.box_2d.map(Number) : [];
+          if (b.length !== 4 || b.some((n) => !Number.isFinite(n))) return null;
+          const c = b.map((n) => Math.max(0, Math.min(1000, Math.round(n))));
+          const box = [Math.min(c[0], c[2]), Math.min(c[1], c[3]), Math.max(c[0], c[2]), Math.max(c[1], c[3])];
+          if (box[2] - box[0] < 10 || box[3] - box[1] < 10) return null;
+          return { label: str(l.label, 60), box };
+        }).filter(Boolean);
+
         return res.status(200).json({
           is_plant_leaf: true,
           healthy,
@@ -136,6 +150,7 @@ export default async function handler(req, res) {
           symptoms: str(raw.symptoms),
           treatment: str(raw.treatment),
           prevention: str(raw.prevention),
+          lesions,
         });
       }
 

@@ -1,14 +1,7 @@
 // Vercel serverless function: /api/diagnose
 // Receives a leaf photo (data URL) and asks Gemini to analyse it.
 // Requires env var GEMINI_API_KEY.
-
-const MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-flash-latest',
-  'gemini-flash-lite-latest',
-  'gemini-2.5-flash',
-];
-
-const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+import { generate } from '../lib/gemini.js';
 
 const PROMPT = `You are a plant pathology assistant inside the Leaf Aid app.
 Look at the photo and decide what it shows. Reply with ONLY a JSON object (no markdown, no extra text) with exactly these keys:
@@ -35,33 +28,6 @@ Rules:
 - Never claim certainty; this is an AI estimate.
 - Only box areas that are clearly visible in the photo; never guess locations.
 - If the image is not a plant leaf, set is_plant_leaf=false, healthy=false, disease_name="", reasons=[], and leave the text fields as empty strings.`;
-
-async function callGemini(model, apiKey, mimeType, base64, langLine) {
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: PROMPT + langLine },
-              { inline_data: { mime_type: mimeType, data: base64 } },
-            ],
-          },
-        ],
-        generationConfig: {
-          maxOutputTokens: 4096, // thinking tokens count toward this limit
-          temperature: 0.3,
-          responseMimeType: 'application/json',
-        },
-      }),
-    }
-  );
-  const data = await resp.json().catch(() => ({}));
-  return { resp, data };
-}
 
 function parseJson(text) {
   const clean = String(text || '').replace(/```json|```/gi, '').trim();
@@ -103,66 +69,48 @@ export default async function handler(req, res) {
     ? `\n\nWrite "reasons", "symptoms", "treatment" and "prevention" in ${langName} (use ${langName} script). Keep "disease_name", "crop" and "severity" in English.`
     : '';
 
-  let lastStatus = 503;
-  let lastError = 'The analysis service is busy right now. Please try again in a moment.';
-
   try {
-    for (const model of MODELS) {
-      const { resp, data } = await callGemini(model, apiKey, mimeType, base64, langLine);
+    const out = await generate({
+      apiKey,
+      parts: [{ text: PROMPT + langLine }, { inline_data: { mime_type: mimeType, data: base64 } }],
+      generationConfig: { maxOutputTokens: 4096, temperature: 0.3, responseMimeType: 'application/json' },
+      accept: (t) => !!parseJson(t),
+    });
+    if (!out.ok) return res.status(out.status).json({ error: out.error });
 
-      if (resp.ok) {
-        const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).filter(Boolean).join('');
-        const raw = parseJson(text);
-        if (!raw) {
-          lastStatus = 502;
-          lastError = 'Could not read the analysis result. Please try again.';
-          continue; // try the next model
-        }
-
-        const isLeaf = raw.is_plant_leaf !== false;
-        if (!isLeaf) {
-          return res.status(200).json({ is_plant_leaf: false });
-        }
-
-        const healthy = raw.healthy === true;
-        const severity = ['low', 'medium', 'high'].includes(raw.severity) ? raw.severity : (healthy ? 'low' : 'medium');
-        let confidence = Math.round(Number(raw.confidence));
-        if (!Number.isFinite(confidence)) confidence = 60;
-        confidence = Math.max(1, Math.min(99, confidence));
-
-        const lesions = healthy ? [] : (Array.isArray(raw.lesions) ? raw.lesions : []).slice(0, 6).map((l) => {
-          const b = Array.isArray(l?.box_2d) ? l.box_2d.map(Number) : [];
-          if (b.length !== 4 || b.some((n) => !Number.isFinite(n))) return null;
-          const c = b.map((n) => Math.max(0, Math.min(1000, Math.round(n))));
-          const box = [Math.min(c[0], c[2]), Math.min(c[1], c[3]), Math.max(c[0], c[2]), Math.max(c[1], c[3])];
-          if (box[2] - box[0] < 10 || box[3] - box[1] < 10) return null;
-          return { label: str(l.label, 60), box };
-        }).filter(Boolean);
-
-        return res.status(200).json({
-          is_plant_leaf: true,
-          healthy,
-          name: str(raw.disease_name, 80) || (healthy ? 'Healthy leaf' : 'Unidentified issue'),
-          crop: str(raw.crop, 60) || 'Unknown',
-          confidence,
-          severity: healthy ? 'low' : severity,
-          reasons: Array.isArray(raw.reasons) ? raw.reasons.map((r) => str(r, 200)).filter(Boolean).slice(0, 4) : [],
-          symptoms: str(raw.symptoms),
-          treatment: str(raw.treatment),
-          prevention: str(raw.prevention),
-          lesions,
-        });
-      }
-
-      console.error(`Gemini ${model}:`, resp.status, data?.error?.message);
-      lastStatus = resp.status;
-      lastError = data?.error?.message || lastError;
-
-      if (resp.status === 404 || RETRYABLE.has(resp.status)) continue; // next model
-      return res.status(resp.status).json({ error: lastError }); // bad key / bad request: stop
+    const raw = parseJson(out.text);
+    if (raw.is_plant_leaf === false) {
+      return res.status(200).json({ is_plant_leaf: false });
     }
 
-    return res.status(lastStatus).json({ error: lastError });
+    const healthy = raw.healthy === true;
+    const severity = ['low', 'medium', 'high'].includes(raw.severity) ? raw.severity : (healthy ? 'low' : 'medium');
+    let confidence = Math.round(Number(raw.confidence));
+    if (!Number.isFinite(confidence)) confidence = 60;
+    confidence = Math.max(1, Math.min(99, confidence));
+
+    const lesions = healthy ? [] : (Array.isArray(raw.lesions) ? raw.lesions : []).slice(0, 6).map((l) => {
+      const b = Array.isArray(l?.box_2d) ? l.box_2d.map(Number) : [];
+      if (b.length !== 4 || b.some((n) => !Number.isFinite(n))) return null;
+      const c = b.map((n) => Math.max(0, Math.min(1000, Math.round(n))));
+      const box = [Math.min(c[0], c[2]), Math.min(c[1], c[3]), Math.max(c[0], c[2]), Math.max(c[1], c[3])];
+      if (box[2] - box[0] < 10 || box[3] - box[1] < 10) return null;
+      return { label: str(l.label, 60), box };
+    }).filter(Boolean);
+
+    return res.status(200).json({
+      is_plant_leaf: true,
+      healthy,
+      name: str(raw.disease_name, 80) || (healthy ? 'Healthy leaf' : 'Unidentified issue'),
+      crop: str(raw.crop, 60) || 'Unknown',
+      confidence,
+      severity: healthy ? 'low' : severity,
+      reasons: Array.isArray(raw.reasons) ? raw.reasons.map((r) => str(r, 200)).filter(Boolean).slice(0, 4) : [],
+      symptoms: str(raw.symptoms),
+      treatment: str(raw.treatment),
+      prevention: str(raw.prevention),
+      lesions,
+    });
   } catch (err) {
     console.error('Diagnose handler error:', err);
     return res.status(500).json({ error: err.message });
